@@ -28,15 +28,28 @@ def migrate(migrator, database, fake=False, **kwargs):
 
     @migrator.create_model
     class User(pw.Model):
-        FirstName = pw.CharField(max_length=255)
-        LastName = pw.CharField(max_length=255)
-        EmailAddress = pw.CharField(max_length=255, unique=True)
-        PasswordHash = pw.CharField(max_length=255)
-        LastLogin = pw.DateTimeField(null=True)
+        firstName = pw.CharField(max_length=255)
+        lastName = pw.CharField(max_length=255)
+        emailAddress = pw.CharField(max_length=255, unique=True)
+        passwordHash = pw.CharField(max_length=255)
+        lastLogin = pw.DateTimeField(null=True)
+
+    @migrator.create_model
+    class Booking(pw.Model):
+        startTime = pw.DateTimeField()
+        endTime = pw.DateTimeField()
+        eventName = pw.CharField(max_length=255)
+        discountPercent = pw.DecimalField(auto_round=False, decimal_places=5, default=0, max_digits=10, rounding='ROUND_HALF_EVEN')
+        discountAmount = pw.DecimalField(auto_round=False, decimal_places=5, default=0, max_digits=10, rounding='ROUND_HALF_EVEN')
+        finalPrice = pw.DecimalField(auto_round=False, decimal_places=5, max_digits=10, null=True, rounding='ROUND_HALF_EVEN')
+        isCanceled = pw.BooleanField(default=False)
+        creator = pw.ForeignKeyField(db_column='creator_id', rel_model=User, to_field='id')
 
 
 
 def rollback(migrator, database, fake=False, **kwargs):
     """Write your rollback migrations here."""
+
+    migrator.remove_model('booking')
 
     migrator.remove_model('user')

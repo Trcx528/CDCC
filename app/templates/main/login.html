@@ -2,25 +2,21 @@
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="row">
-  <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-    
-    <div class="panel panel-default">
-      <div class="panel-heading">Please Login {{ html.button("Register", "link", ["btn", "btn-primary", "pull-right", "btn-panel"], url_for("main.register")) }}</div>
-      <div class="panel-body">
-         <form class="form-horizontal" method="post">
-          <fieldset>
-            {{ html.csrf_token() }}
-            {{ html.form_group("text", "Email", inputName="LoginEmail" ,  placeholder="Email") }}
-            {{ html.form_group("password", "Password", inputName="LoginPassword", placeholder="Password")}}
-            <div class="form-group">
-              <div class="col-lg-10 col-lg-offset-2">
-                {{ html.button("Login", "submit", ["btn", "btn-primary"]) }}
-              </div>
-            </div>
-          </fieldset>
-        </form>
-      </div>
-    </div>
+  <div class="col-xs-10 col-xs-offset-1 col-sm-4 col-sm-offset-4 col-md-2 col-md-offset-5">
+    <form class="form-horizontal" method="post" style="border-radius: 5px; padding: 10px;">
+      <legend>Login</legend>
+      <fieldset>
+        {{ html.csrf_token() }}
+        <input class="form-control" name="LoginEmail" id="LoginEmail" value="" placeholder="Email" type="text" style="border-bottom-right-radius: 0px; border-bottom-left-radius: 0px;">
+        <input class="form-control" name="LoginPassword" id="LoginPassword" value="" placeholder="Password" type="password" style="border-top-left-radius: 0px; border-top-right-radius: 0px;">
+        <div style="margin-top: 20px;"></div>
+        <div>
+          {{ html.button("Login", "submit", ["btn", "btn-primary"]) }}
+          {{ html.button("Register", "link", ["btn", "btn-default", "pull-right"], url_for("main.register")) }}
+        </div>    
+      </fieldset>
+    </form>
+    <div style="margin-top: 20px"></div>
   </div>
 </div>
 {% endblock %}

@@ -19,7 +19,7 @@ def register():
 @validate(FirstName="str|required", LastName="str|required", EmailAddress="email|required|dbunique",
           Password="str|required|minlength=8", ConfirmPassword="str|required|matches=Password")
 def processRegister():
-    newUser = User(FirstName=g.data["FirstName"], LastName=g.data["LastName"], EmailAddress=g.data["EmailAddress"])
+    newUser = User(firstName=g.data["FirstName"], lastName=g.data["LastName"], emailAddress=g.data["EmailAddress"])
     newUser.setPassword(g.data["Password"])
     newUser.save()
     flash("User Registered Sucessfully", 'success')
@@ -28,12 +28,13 @@ def processRegister():
 
 @blueprint.route('/login', methods=['POST', 'GET'])
 # just validate that they are both there, we'll check the rest in our below function
-@validate(LoginEmail="str|required", LoginPassword="str|required")
+@validate(LoginEmail="str", LoginPassword="str")
 def login():
     if request.method == 'GET':
         return render_template('main/login.html')
-    loginUser = User.select().where(User.EmailAddress == g.data["LoginEmail"]).get()
-    if loginUser:
+    loginUser = User.select().where(User.emailAddress == g.data["LoginEmail"]).count()
+    if loginUser > 0:
+        loginUser = User.select().where(User.emailAddress == g.data["LoginEmail"]).get()
         if loginUser.checkPassword(g.data["LoginPassword"]):
             g.loggedIn = True
             session["user"] = loginUser.id
@@ -42,7 +43,7 @@ def login():
             flash("Invalid Email Address Or Password", "error")
     else:
         flash("Invalid Email Address Or Password", "error")
-    return redirect(request.referrer)
+    return redirect(url_for('main.index'))
 
 
 @blueprint.route('/logout', methods=['POST'])
