@@ -1,8 +1,8 @@
 
 
 prod = {
-    'PEEWEE_DATABASE_URI': 'sqlite:///app.db',
-    'SECRET_KEY': 'changeme',
+    'PEEWEE_DATABASE_URI': 'mysql://dev:dev@192.168.48.2:3306/dev',
+    'SECRET_KEY': 'fsdakh9809IOJKhfajkkn32480ojkh90p8&*^&^daf',
     'DEBUG': None
     }
 
