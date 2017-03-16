@@ -1,0 +1,14 @@
+# don't commit sqlite databases
+*.db
+*.sqlite
+
+# skip virtual env folder
+env/*
+
+# ignore python's compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# skip vscode files
+.vscode/
