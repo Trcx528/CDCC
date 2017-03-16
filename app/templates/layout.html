@@ -8,7 +8,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %} - CD&amp;CC</title>
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
   </head>
   <body>
@@ -21,7 +21,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Project name</a>
+          <a class="navbar-brand" href="/">CD&amp;CC</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           {% if g.loggedIn %}
@@ -29,13 +29,7 @@
             {{ html.button("Signout", "submit", ['btn', 'btn-danger']) }}
           </form>
           {% else %}
-          <form class="navbar-form navbar-right" method="post" action={{url_for("main.login")}}>
-            {{ html.csrf_token() }}
-            {{ html.form_group("text", None, "LoginEmail", placeholder="Email", innerDiv=None) }}
-            {{ html.form_group("password", None, "LoginPassword", placeholder="Password", innerDiv=None) }}
-            {{ html.button("Signin", "submit", ['btn', 'btn-success']) }}
-            {{ html.button("Register", "link", ['btn', 'btn-primary'], url_for('main.register')) }}
-          </form>
+          
           {% endif %}
         </div>
       </div>
@@ -104,7 +98,7 @@
       <hr>
 
       <footer>
-        <p class="text-center text-muted">© 2016 Company, Inc.</p>
+        <p class="text-center text-muted">© 2017 UWM Senior Capstone</p>
       </footer>
     </div>
 

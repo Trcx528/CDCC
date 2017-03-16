@@ -7,10 +7,12 @@ from app.models import User
 _validators = {}
 
 
-def validate(csrf_protection=True, **params):
+def validate(csrf_protection=True, methods=['POST'], **params):
     def wrapper(func):
         @wraps(func)
         def decorator(*args, **kwargs):
+            if request.method not in methods:
+                return func(*args, **kwargs)
             valErrors = {}
             g.data = {}
             g.errors = {}

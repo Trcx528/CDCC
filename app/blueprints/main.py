@@ -12,7 +12,7 @@ def index():
 
 @blueprint.route('/register')
 def register():
-    return render_template('main/form.html')
+    return render_template('main/register.html')
 
 
 @blueprint.route('/register', methods=['POST'])
@@ -26,10 +26,12 @@ def processRegister():
     return redirect(url_for('main.index'))
 
 
-@blueprint.route('/login', methods=['POST'])
+@blueprint.route('/login', methods=['POST', 'GET'])
 # just validate that they are both there, we'll check the rest in our below function
 @validate(LoginEmail="str|required", LoginPassword="str|required")
 def login():
+    if request.method == 'GET':
+        return render_template('main/login.html')
     loginUser = User.select().where(User.EmailAddress == g.data["LoginEmail"]).get()
     if loginUser:
         if loginUser.checkPassword(g.data["LoginPassword"]):

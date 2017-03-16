@@ -1,13 +1,14 @@
-from flask import Flask, send_from_directory, g, session
+import os
+from datetime import datetime
+from flask import Flask, send_from_directory, g, session, redirect, url_for, request
 from flask_script import Manager
 from werkzeug import find_modules, import_string
 from playhouse.db_url import connect
-from datetime import datetime
 from config import prod
 from flask_pw import Peewee
 import app.helpers as helpers
 from flask_debugtoolbar import DebugToolbarExtension
-import os
+
 
 app = Flask(__name__)
 app.jinja_env.globals.update(html=helpers)
@@ -26,7 +27,7 @@ manager.add_command('db', db.manager)
 
 for name in find_modules('app.blueprints'):
     mod = import_string(name)
-    if (hasattr(mod, 'blueprint')):
+    if hasattr(mod, 'blueprint'):
         app.register_blueprint(mod.blueprint)
 
 
@@ -40,6 +41,9 @@ def before_request():
     if "user" in session:
         g.User = models.User.select().where(models.User.id == session["user"]).get()
         g.loggedIn = True
+    else:
+        if not request.path.startswith('/static') and request.path != url_for('main.login') and request.path != url_for('main.register'):
+            return redirect(url_for('main.login'))
 
 
 @app.teardown_request

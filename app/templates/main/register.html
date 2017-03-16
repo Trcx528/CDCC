@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+    <div class="panel panel-default">
+      <div class="panel-heading">Register</div>
+      <div class="panel-body">
+        <form class="form-horizontal" method="post">
+          <fieldset>
+            <legend>Register</legend>
+            {{ html.csrf_token() }}
+            {{ html.form_group("text", "First Name", placeholder="First") }}
+            {{ html.form_group("text", "Last Name", placeholder="Last") }}
+            {{ html.form_group("text", "Email Address", placeholder="Email") }}
+            {{ html.form_group("password", "Password", placeholder="Password")}}
+            {{ html.form_group("password", "Confirm Password", placeholder="Confirm Password") }}
+            <div class="form-group">
+              <div class="col-lg-10 col-lg-offset-2">
+                {{ html.button("Cancel", "reset") }}
+                {{ html.button("Submit", "submit", ["btn", "btn-primary"]) }}
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

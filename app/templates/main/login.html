@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">Please Login {{ html.button("Register", "link", ["btn", "btn-primary", "pull-right", "btn-panel"], url_for("main.register")) }}</div>
+      <div class="panel-body">
+         <form class="form-horizontal" method="post">
+          <fieldset>
+            {{ html.csrf_token() }}
+            {{ html.form_group("text", "Email", inputName="LoginEmail" ,  placeholder="Email") }}
+            {{ html.form_group("password", "Password", inputName="LoginPassword", placeholder="Password")}}
+            <div class="form-group">
+              <div class="col-lg-10 col-lg-offset-2">
+                {{ html.button("Login", "submit", ["btn", "btn-primary"]) }}
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
