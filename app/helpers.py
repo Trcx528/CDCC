@@ -9,8 +9,12 @@ def value_for(name):
     return ""
 
 
-def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[],
-               innerDiv=["col-sm-10"]):
+def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[], innerDiv=["col-sm-10"]):
+    """
+    ftype: [text|password|select|multiselect|textarea|radio]
+    label: visible name
+    inputName: internal name (no spaces)
+    """
     if inputName is None:
         inputName = label.replace(" ", "")
     if id is None:

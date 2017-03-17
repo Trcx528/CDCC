@@ -1,13 +1,11 @@
 import os
 from datetime import datetime
 from flask import Flask, send_from_directory, g, session, redirect, url_for, request
-from flask_script import Manager, Server
 from werkzeug import find_modules, import_string
 from playhouse.db_url import connect
 from config import *
 from flask_pw import Peewee
 import app.helpers as helpers
-from flask_debugtoolbar import DebugToolbarExtension
 
 
 app = Flask(__name__)
@@ -19,20 +17,7 @@ if prod['DEBUG'] is True or prod['DEBUG'] is None:
 db = Peewee(app)
 if db:
     import app.models as models
-toolbar = DebugToolbarExtension(app)
-manager = Manager(app)
-manager.add_command('db', db.manager)
-
-extra_dirs = ['templates',]
-extra_files = extra_dirs[:]
-for extra_dir in extra_dirs:
-    for dirname, dirs, files in os.walk(extra_dir):
-        for filename in files:
-            filename = os.path.join(dirname, filename)
-            if os.path.isfile(filename):
-                extra_files.append(filename)
-manager.add_command("runserver", Server(extra_files=extra_files))
-
+app.cli.add_command(db.cli, 'db')
 
 for name in find_modules('app.blueprints'):
     mod = import_string(name)
@@ -59,3 +44,7 @@ def before_request():
 @app.teardown_request
 def teardown_request(exception):
     pass
+
+if __name__ == '__main__':
+    with app.app_context():
+        app.cli()

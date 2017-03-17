@@ -13,7 +13,7 @@
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -26,11 +26,24 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           {% if g.loggedIn %}
-          <form class="navbar-form navbar-right" method="post" action={{url_for("main.logout")}}>
-            {{ html.button("Signout", "submit", ['btn', 'btn-danger']) }}
-          </form>
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">Admin <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{{ url_for('admin.index') }}">Home</a></li>
+                <li><a href="{{ url_for('admin.listRoom') }}">Rooms</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onclick="$('#logoutForm').submit()">Logout</a></li>
+            <form id="logoutForm" method="post" action={{url_for("main.logout")}}></form>
+          <ul>
           {% else %}
-          
+          <ul class="nav navbar-nav navbar-right">
+            <li>{{ html.button("Login", "link", [], url_for('main.login')) }}</li>
+            <li>{{ html.button("Register", "link", [], url_for('main.register')) }}</li>
+          </ul>
           {% endif %}
         </div>
       </div>
@@ -81,7 +94,9 @@
 
     <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    <script type="text/javascript">$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
+    <script type="text/javascript">
+      SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
     {% block script %}{% endblock %}
   </body>
 </html>

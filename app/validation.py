@@ -48,7 +48,18 @@ def validate(csrf_protection=True, methods=['POST'], **params):
                 session["validationErrors"] = valErrors
                 session["validationData"] = g.data
                 return redirect(request.referrer)
-            return func(*args, **kwargs)
+            rparams = {}
+            for var in func.__code__.co_varnames:
+                print(var)
+                lvar = var.lower()
+                for kvar in kwargs:
+                    if lvar == kvar.lower():
+                        rparams[var] = kwargs[kvar]
+                for kvar in g.data:
+                    if lvar == kvar.lower():
+                        rparams[var] = g.data[kvar]
+            print(rparams)
+            return func(*args, **rparams)
         return decorator
     return wrapper
 
@@ -73,7 +84,7 @@ def valEmail(value, fieldName=None, dbunique=False, **commonArgs):
     if not re.match("[^@]+@[^@]+.[^@]+", value):
         errors.append("Invalid Email Format")
     if dbunique:
-        count = User.select().where(User.EmailAddress == value).count()
+        count = User.select().where(User.emailAddress == value).count()
         if count > 0:
             errors.append("Email already in use")
     return value, errors
@@ -96,15 +107,30 @@ def valInt(value, fieldName=None, max=None, min=None, **commonArgs):
         value = int(value)
         if max is not None:
             if value > int(max):
-                errors.append("Exceeds Max Value")
+                errors.append("Must be less than %s" % max)
         if min is not None:
             if value < int(min):
-                errors.append("Below Min Value")
+                errors.append("Must be greater than %s" % min)
     else:
         if len(errors) == 0:
-            errors.append("Failed to parse integer")
+            errors.append("Failed to parse")
     return value, errors
 
+
+def valFloat(value, fieldName=None, max=None, min=None, **commonArgs):
+    errors = commonValidation(fieldName, value, **commonArgs)
+    if value != "" and value is not None:
+        value = float(value)
+        if max is not None:
+            if value > float(max):
+                errors.append("Must be less than %s" % max)
+        if min is not None:
+            if value < float(min):
+                errors.append("Must be greater than %s" % min)
+    else:
+        if len(errors) == 0:
+            errors.append("Failed to parse")
+    return value, errors
 
 def valMutliSelect(value, fieldName=None, minSelect=0, maxSelect=None, **commonArgs):
     errors = commonValidation(value, fieldName, **commonArgs)
@@ -121,9 +147,16 @@ def valBool(value, fieldName=None, **commonArgs):
     return value == "on", errors
 
 
+def valCurrency(value, **args):
+    value = value.replace("$", "")
+    return valFloat(value, **args)
+
+
 registerValidator("str", valString)
 registerValidator("string", valString)
 registerValidator("int", valInt)
 registerValidator("email", valEmail)
 registerValidator("check", valBool)
 registerValidator("multiselect", valMutliSelect)
+registerValidator("decimal", valFloat)
+registerValidator("currency", valCurrency)

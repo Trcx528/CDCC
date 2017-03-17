@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>Administration</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <p>{{html.button("Edit Rooms", "link", ["btn", "btn-default"], "#")}}</p>
+        </div>
+        <div class="col-md-4">
+            <p>{{html.button("Edit Catering", "link", ["btn", "btn-default"], "#")}}</p>
+        </div>
+            <div class="col-md-4">
+            <p>{{html.button("Edit Contacts`", "link", ["btn", "btn-default"], "#")}}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
