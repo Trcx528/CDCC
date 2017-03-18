@@ -50,7 +50,6 @@ def validate(csrf_protection=True, methods=['POST'], **params):
                 return redirect(request.referrer)
             rparams = {}
             for var in func.__code__.co_varnames:
-                print(var)
                 lvar = var.lower()
                 for kvar in kwargs:
                     if lvar == kvar.lower():
@@ -58,7 +57,6 @@ def validate(csrf_protection=True, methods=['POST'], **params):
                 for kvar in g.data:
                     if lvar == kvar.lower():
                         rparams[var] = g.data[kvar]
-            print(rparams)
             return func(*args, **rparams)
         return decorator
     return wrapper

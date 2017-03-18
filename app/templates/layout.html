@@ -11,6 +11,8 @@
     <title>{% block title %}{% endblock %} - CD&amp;CC</title>
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/chosen.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/jquery.datetimepicker.min.css') }}" rel="stylesheet">
   </head>
   <body>
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -94,6 +96,8 @@
 
     <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chosen.jquery.min.js') }}"></script>
     <script type="text/javascript">
       SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>

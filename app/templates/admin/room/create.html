@@ -10,6 +10,7 @@
         {{ html.form_group("text", "Name", placeholder="Room Name") }}
         {{ html.form_group("text", "Capacity", placeholder="100") }}
         {{ html.form_group("text", "Price", placeholder="$99.95") }}
+        {{ html.form_group("multiselect", "Adjacent Rooms", options=rooms) }}
         <div class="form-group">
           <div class="col-lg-10 col-lg-offset-2">
             {{ html.button("Create", "submit", ["btn", "btn-primary"]) }}
@@ -19,4 +20,12 @@
     </form>
   </div>
 </div>
+{% endblock %}
+{% block script %}
+<script>
+$('#AdjacentRooms').chosen({
+  'placeholder_text_multiple': 'Select rooms...'
+});
+$("#AdjacentRooms_chosen").addClass("chosen-form-control");
+</script>
 {% endblock %}

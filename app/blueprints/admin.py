@@ -18,7 +18,10 @@ def index():
 
 @blueprint.route('/admin/room/create')
 def createRoom():
-    return render_template('admin/room/create.html')
+    rooms = {}
+    for r in Room.select():
+        rooms[r.id] = r.name
+    return render_template('admin/room/create.html', rooms=rooms)
 
 
 @blueprint.route('/admin/room/create', methods=['POST'])
