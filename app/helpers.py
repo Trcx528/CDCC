@@ -42,7 +42,7 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
     if ftype == "text" or ftype == "password":
         ret += '<input class="form-control" name="' + inputName + '" type="' + ftype + '" id="' + id + '"'
         if value is not None:
-            ret += ' value="' + value + '"'
+            ret += ' value="' + str(value) + '"'
         if placeholder is not None:
             ret += ' placeholder="' + placeholder + '"'
         ret += '>'
@@ -84,10 +84,16 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
     return Markup(ret)
 
 
-def button(text, ftype="submit", cls=["btn", "btn-default"], destination=None):
+def button(text, ftype="submit", cls=["btn", "btn-default"], destination=None, unique_id=None):
     classes = ' '.join(cls)
     if ftype == "link":
         ret = '<a href="' + destination + '" class="' + classes + '">' + text + '</a>'
+    elif ftype == "post":
+        if unique_id is None:
+            unique_id = text.replace(" ", "") + destination.replace("/", "")
+        ret = '<a href="' + destination + '" onclick="event.preventDefault();$(\'#' + unique_id + '\').submit()"'
+        ret += ' class="' + classes + '">' + text + '</a>'
+        ret += '<form id="' + unique_id + '" method="post" action="' + destination + '"></form>'
     else:
         ret = '<button type="' + ftype + '" class="' + classes + '">' + text + '</button>'
     return Markup(ret)

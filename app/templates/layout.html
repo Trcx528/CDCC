@@ -11,7 +11,7 @@
     <title>{% block title %}{% endblock %} - CD&amp;CC</title>
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/chosen.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-multiselect.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/jquery.datetimepicker.min.css') }}" rel="stylesheet">
   </head>
   <body>
@@ -38,8 +38,7 @@
             </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#" onclick="$('#logoutForm').submit()">Logout</a></li>
-            <form id="logoutForm" method="post" action={{url_for("main.logout")}}></form>
+            <li>{{ html.button('Logout', 'post', ['test'], url_for('main.logout')) }}</li>
           <ul>
           {% else %}
           <ul class="nav navbar-nav navbar-right">
@@ -97,7 +96,7 @@
     <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/chosen.jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript">
       SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>

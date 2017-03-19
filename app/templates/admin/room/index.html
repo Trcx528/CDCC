@@ -13,7 +13,7 @@
                         <th>Name</th>
                         <th>Capacity</th>
                         <th>Price</th>
-                        <th></th>
+                        <th class="pull-right">{{ html.button("Create Room", "link", ["btn", "btn-default", "btn-xs"], url_for('admin.createRoom')) }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,8 +21,11 @@
                         <tr>
                             <td>{{room.name}}</td>
                             <td>{{room.capacity}}</td>
-                            <td>{{room.price}}</td>
-                            <td></td>
+                            <td>${{room.price|round(2)}}</td>
+                            <td class="pull-right">
+                                {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('admin.editRoom', id=room.id))}}
+                                {{html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('admin.deleteRoom', id=room.id), 'delete%s' % room.id )}}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

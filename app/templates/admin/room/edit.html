@@ -5,15 +5,15 @@
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
     <form class="form-horizontal" method="post">
       <fieldset>
-        <legend>Create Room</legend>
+        <legend>Edit Room</legend>
         {{ html.csrf_token() }}
-        {{ html.form_group("text", "Name", placeholder="Room Name") }}
-        {{ html.form_group("text", "Capacity", placeholder="100") }}
-        {{ html.form_group("text", "Price", placeholder="$99.95") }}
-        {{ html.form_group("multiselect", "Adjacent Rooms", options=rooms) }}
+        {{ html.form_group("text", "Name", placeholder="Room Name", value=room.name) }}
+        {{ html.form_group("text", "Capacity", placeholder="100", value=room.capacity) }}
+        {{ html.form_group("text", "Price", placeholder="$99.95", value="$%0.2f" % room.price)}}
+        {{ html.form_group("multiselect", "Adjacent Rooms", options=rooms, value=room.adjacentRoomIds()) }}
         <div class="form-group">
           <div class="col-lg-10 col-lg-offset-2">
-            {{ html.button("Create", "submit", ["btn", "btn-primary"]) }}
+            {{ html.button("Save", "submit", ["btn", "btn-primary"]) }}
           </div>
         </div>
       </fieldset>

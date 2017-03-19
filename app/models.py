@@ -24,19 +24,50 @@ class Room(db.Model):
     price = DecimalField()
     comboRooms = CharField(default="")
 
+    def adjacentRoomIds(self):
+        ret = []
+        print(self.comboRooms)
+        for id in self.comboRooms.split(','):
+            if id != '':
+                ret.append(id)
+        return ret
+
     def adjacentRooms(self):
-        # TODO
-        pass
+        return Room.select().where(Room.id << self.adjacentRoomIds())
 
-    def addAdjacentRoom(self):
-        # TODO
-        pass
+    def setAdjacentRooms(self, roomList):
+        for id in self.adjacentRoomIds():
+            if id not in roomList:
+                self.removeAdjacentRoom(id)
+        for id in roomList:
+            if id not in self.adjacentRoomIds():
+                self.addAdjacentRoom(id)
 
-    def removeAdjacentRoom(self):
-        # TODO
-        pass
+    def addAdjacentRoom(self, id):
+        if hasattr(id, "id"):
+            id = id.id
+        arids = self.adjacentRoomIds()
+        oroom = Room.select().where(Room.id == id).get()
+        orids = oroom.adjacentRoomIds()
+        arids.append(str(id))
+        orids.append(str(self.id))
+        self.comboRooms = ",".join(arids)
+        oroom.comboRooms = ",".join(orids)
+        self.save()
+        oroom.save()
 
-
+    def removeAdjacentRoom(self, id):
+        if hasattr(id, "id"):
+            id = id.id
+        arids = self.adjacentRoomIds()
+        oroom = Room.select().where(Room.id == id).get()
+        orids = oroom.adjacentRoomIds()
+        arids.remove(str(id))
+        orids.remove(str(self.id))
+        self.comboRooms = ",".join(arids)
+        oroom.comboRooms = ",".join(orids)
+        self.save()
+        oroom.save()
 
 
 class Organization(db.Model):
