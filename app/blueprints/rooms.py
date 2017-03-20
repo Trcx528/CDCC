@@ -11,9 +11,11 @@ def adminCheck():
         return redirect(url_for('main.index'))
 
 
+
 @blueprint.route('/admin/rooms/create')
 def create():
     return render_template('admin/room/create.html', rooms=Room.select())
+
 
 @blueprint.route('/admin/rooms/create', methods=['POST'])
 @validate(Name="str|required", Capacity="int|required|min=1", Price="currency|required|min=0",
@@ -31,6 +33,7 @@ def edit(id):
     return render_template('admin/room/edit.html', rooms=Room.select().where(Room.id != id),
                            room=Room.select().where(Room.id == id).get())
 
+
 @blueprint.route('/admin/rooms/<int:id>', methods=['POST'])
 @validate(Name="str|required", Capacity="int|required|min=1", Price="currency|required|min=0",
           AdjacentRooms="multiselect")
@@ -42,6 +45,7 @@ def processEdit(id, name, capacity, price, adjacentRooms):
     room.setAdjacentRooms(adjacentRooms)
     flash("Modified room %s" % name, "success")
     return redirect(url_for('rooms.index'))
+
 
 @blueprint.route('/admin/rooms')
 def index():

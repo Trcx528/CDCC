@@ -11,6 +11,8 @@ def adminCheck():
         flash("You are not allow to access that", "error")
         return redirect(url_for('main.index'))
 
+
+
 @blueprint.route('/admin/contacts')
 def index():
     orgs = Organization.select()
@@ -19,12 +21,14 @@ def index():
     contacts = Contact.select().where(Contact.organization == None)
     return render_template('admin/contacts/index.html', organizations=org_contacts, contacts=contacts)
 
+
 @blueprint.route('/admin/contacts/create')
 def create():
     orgs = {0: "None"}
     for org in Organization.select():
         orgs[org.id] = org.name
     return render_template('admin/contacts/create.html', orgs=orgs)
+
 
 @blueprint.route('/admin/contacts/create', methods=['POST'])
 @validate(Name="str|required", CellPhone="phone", WorkPhone="phone", Email="email|required", Organization="int")
@@ -36,6 +40,7 @@ def processCreate(name, email, cellPhone, workPhone, organization):
     flash("Created Contact %s" % name, 'success')
     return redirect(url_for('contacts.index'))
 
+
 @blueprint.route('/admin/contacts/<int:id>')
 def edit(id):
     contact = Contact.select().where(Contact.id == id).get()
@@ -43,6 +48,7 @@ def edit(id):
     for org in Organization.select():
         orgs[org.id] = org.name
     return render_template('admin/contacts/edit.html', contact=contact, orgs=orgs)
+
 
 @blueprint.route('/admin/contacts/<int:id>', methods=['POST'])
 @validate(Name="str|required", CellPhone="phone", WorkPhone="phone", Email="email|required", Organization="int")
@@ -57,6 +63,7 @@ def processEdit(id, name, email, cellPhone, workPhone, organization):
     contact.save()
     flash("Updated %s" % name, 'success')
     return redirect(url_for('contacts.index'))
+
 
 @blueprint.route('/admin/contacts/<int:id>/delete', methods=['POST'])
 def delete(id):
