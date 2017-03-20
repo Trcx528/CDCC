@@ -28,7 +28,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "${config:python.pythonPath}",
+            "pythonPath": "/usr/bin/python3",
             "program": "/usr/local/bin/flask",
             "env": {
                 "FLASK_APP": "${workspaceRoot}/app/__init__.py",
