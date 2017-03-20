@@ -58,7 +58,6 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
             if ftype == "multiselect":
                 if val in value:
                     ret += ' selected=""'
-                print(val, value, val in value)
             elif val == value:
                 ret += ' selected=""'
             ret += '>' + key + '</option>'
