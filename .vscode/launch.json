@@ -9,8 +9,7 @@
             "pythonPath": "${config:python.pythonPath}",
             "program": "${workspaceRoot}/run.py",
             "env": {
-                "FLASK_APP": "${workspaceRoot}/app/__init__.py",
-                "FLASK_DEBUG": "true"
+                "FLASK_APP": "${workspaceRoot}/app/__init__.py"
             },
             "args": [
                 "run",

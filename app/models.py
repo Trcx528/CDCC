@@ -79,14 +79,14 @@ class Contact(db.Model):
     cell_phone = CharField(null=True)
     email = CharField(null=True)
     name = CharField()
-    organization = ForeignKeyField(null=True, rel_model=Organization, to_field='id')
+    organization = ForeignKeyField(null=True, rel_model=Organization, to_field='id', related_name='contacts')
     work_phone = CharField(null=True)
 
 
 class Booking(db.Model):
     canceler = IntegerField(index=True, null=True)
-    contact = ForeignKeyField(rel_model=Contact, to_field='id')
-    creator = ForeignKeyField(rel_model=User, to_field='id')
+    contact = ForeignKeyField(rel_model=Contact, to_field='id', related_name='bookings')
+    creator = ForeignKeyField(rel_model=User, to_field='id', related_name='createdBookings')
     discountAmount = DecimalField()
     discountPercent = DecimalField()
     endTime = DateTimeField()
@@ -95,9 +95,15 @@ class Booking(db.Model):
     isCanceled = BooleanField()
     startTime = DateTimeField()
 
+    def rooms(self):
+        ret = []
+        for room in BookingRoom.select().where(BookingRoom.booking == self).join(Room):
+            ret.append(room)
+        return ret
+
 
 class Attachment(db.Model):
-    booking = ForeignKeyField(rel_model=Booking, to_field='id')
+    booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='attachments')
     filePath = CharField()
 
 
@@ -112,12 +118,12 @@ class Caterer(db.Model):
 
 
 class Dishes(db.Model):
-    caterer = ForeignKeyField(rel_model=Caterer, to_field='id')
+    caterer = ForeignKeyField(rel_model=Caterer, to_field='id', related_name='dishes')
     dishName = CharField()
     price = DecimalField()
 
 
 class Order(db.Model):
-    booking = ForeignKeyField(rel_model=Booking, to_field='id')
-    menu = ForeignKeyField(rel_model=Dishes, to_field='id')
+    booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='orders')
+    menu = ForeignKeyField(rel_model=Dishes, to_field='id', related_name='orders')
     quantity = IntegerField()

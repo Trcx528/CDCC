@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-condensed table-hover table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mobile Phone</th>
+                        <th>Work Phone</th>
+                        <th>Email</th>
+                        <th class="pull-right">
+                            {{ html.button("Create Org", "link", ["btn", "btn-default", "btn-xs"], url_for('admin.createOrganization')) }}
+                            {{ html.button("Create Contact", "link", ["btn", "btn-default", "btn-xs"], '#') }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for org in organizations %}
+                        <tr class="info">
+                            <td>{{ org.name }}</td>
+                            <td colspan="3">{{ org.address }}</td>
+                            <td></td>
+                        </tr>
+                        {% for contact in org.contacts%}
+                            <tr>
+                                <td>{{ contact.name }}</td>
+                                <td>{{ contact.cell_phone }}</td>
+                                <td>{{ contact.work_phone }}</td>
+                                <td>{{ contact.email }}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor%}
+                    {% if contacts|count > 0 %}
+                        <tr class="info">
+                            <td colspan="5">No Organization</td>
+                        </tr>
+                        {% for contact in contacts %}
+                            <tr>
+                                <td>{{ contact.name }}</td>
+                                <td>{{ contact.cell_phone }}</td>
+                                <td>{{ contact.work_phone }}</td>
+                                <td>{{ contact.email }}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
