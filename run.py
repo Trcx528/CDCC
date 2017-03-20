@@ -10,7 +10,7 @@ try:
         if config.prod["DEBUG"] == None or config.prod["DEBUG"] == True:
             os.environ["FLASK_DEBUG"] = "True"
         os.environ["FLASK_APP"] = sys.argv[0]
-        os.system(sys.executable + " -m flask " + " ".join(sys.argv[1:]) )
+        os.system('"' + sys.executable + '" -m flask ' + ' '.join(sys.argv[1:]) )
 except ImportError:
     print("No config.py found!")
     exit(1)
