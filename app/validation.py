@@ -149,6 +149,32 @@ def valCurrency(value, **args):
     value = value.replace("$", "")
     return valFloat(value, **args)
 
+def valPhone(value, fieldName=None, minlength=10, **commonArgs):
+    errors = commonValidation(value, fieldName, **commonArgs)
+    value = value.replace("(", "").replace(")", "").replace(" ", "").replace("-", "").lower()
+    if value is None or value.replace("x", "") is "":
+        return value, errors
+    if not value.replace("x", "").isnumeric():
+        errors.append("Invalid Format")
+    if not len(value.replace("x", "")) >= minlength:
+        errors.append("Phone Number Too Short")
+    area, block, num, ext = "", "", "", ""
+    if value.startswith("1"):
+        area = value[:4] + " "
+        value = value[4:]
+    else:
+        area = "(" + value[:3] + ") "
+        value = value[3:]
+    block = value[:3] + "-"
+    value = value[3:]
+    num = value[:4]
+    value = value[4:]
+    if len(value) > 0:
+        ext = " x" + value.replace("x", "")
+    return area + block + num + ext, errors
+
+
+
 
 registerValidator("str", valString)
 registerValidator("string", valString)
@@ -158,3 +184,4 @@ registerValidator("check", valBool)
 registerValidator("multiselect", valMutliSelect)
 registerValidator("decimal", valFloat)
 registerValidator("currency", valCurrency)
+registerValidator("phone", valPhone)

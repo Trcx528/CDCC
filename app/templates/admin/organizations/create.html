@@ -1,16 +1,15 @@
 {% extends "layout.html" %}
-{% block title %}Create Room{% endblock %}
+{% block title %}Create Organization{% endblock %}
 {% block content %}
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
     <form class="form-horizontal" method="post">
       <fieldset>
-        <legend>Create Room</legend>
+        <legend>Create Organization</legend>
         {{ html.csrf_token() }}
-        {{ html.form_group("text", "Name", placeholder="Room Name") }}
-        {{ html.form_group("text", "Capacity", placeholder="100") }}
-        {{ html.form_group("text", "Price", placeholder="$99.95") }}
-        {{ html.form_group("multiselect", "Adjacent Rooms", options=html.to_keyval(rooms)) }}
+        {{ html.form_group("text", "Name", placeholder="Organization Name") }}
+        {{ html.form_group("textarea", "Address", placeholder="Company Name 123 Main St. City, State Zip")}}
+        {{ html.form_group("multiselect", "Contacts", options=html.to_keyval(contacts))}}
         <div class="form-group">
           <div class="col-lg-10 col-lg-offset-2">
             {{ html.button("Create", "submit", ["btn", "btn-primary"]) }}
@@ -23,6 +22,6 @@
 {% endblock %}
 {% block script %}
 <script>
-$('#AdjacentRooms').multiselect();
+$('#Contacts').multiselect();
 </script>
 {% endblock %}

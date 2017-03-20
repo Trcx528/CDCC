@@ -29,17 +29,18 @@
         <div id="navbar" class="navbar-collapse collapse">
           {% if g.loggedIn %}
           <ul class="nav navbar-nav">
+            
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">Admin <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="{{ url_for('admin.index') }}">Home</a></li>
-                <li><a href="{{ url_for('admin.listRoom') }}">Rooms</a></li>
+                <li><a href="{{ url_for('rooms.index') }}">Rooms</a></li>
+                <li><a href="{{ url_for('contacts.index') }}">Contacts</a></li>
               </ul>
             </li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
             <li>{{ html.button('Logout', 'post', ['test'], url_for('main.logout')) }}</li>
-          <ul>
+          </ul>
           {% else %}
           <ul class="nav navbar-nav navbar-right">
             <li>{{ html.button("Login", "link", [], url_for('main.login')) }}</li>

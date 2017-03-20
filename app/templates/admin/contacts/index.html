@@ -13,8 +13,8 @@
                         <th>Work Phone</th>
                         <th>Email</th>
                         <th class="pull-right">
-                            {{ html.button("Create Org", "link", ["btn", "btn-default", "btn-xs"], url_for('admin.createOrganization')) }}
-                            {{ html.button("Create Contact", "link", ["btn", "btn-default", "btn-xs"], '#') }}
+                            {{ html.button("Create Org", "link", ["btn", "btn-info", "btn-xs"], url_for('organizations.create')) }}
+                            {{ html.button("Create Contact", "link", ["btn", "btn-primary", "btn-xs"], url_for('contacts.create')) }}
                         </th>
                     </tr>
                 </thead>
@@ -23,7 +23,16 @@
                         <tr class="info">
                             <td>{{ org.name }}</td>
                             <td colspan="3">{{ org.address }}</td>
-                            <td></td>
+                            <td>
+                                <span class="pull-right">
+                                    {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('organizations.edit', id=org.id))}}
+                                    {% if org.contacts|count > 0 %}
+                                        {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs", "disabled"], url_for('organizations.delete', id=org.id), 'deleteOrg%s' % org.id ) }}
+                                    {% else %}
+                                        {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('organizations.delete', id=org.id), 'deleteOrg%s' % org.id ) }}
+                                    {% endif %}
+                                </span>
+                            </td>
                         </tr>
                         {% for contact in org.contacts%}
                             <tr>
@@ -31,7 +40,12 @@
                                 <td>{{ contact.cell_phone }}</td>
                                 <td>{{ contact.work_phone }}</td>
                                 <td>{{ contact.email }}</td>
-                                <td></td>
+                                <td>
+                                    <span class="pull-right">
+                                        {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('contacts.edit', id=contact.id))}}
+                                        {{html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('contacts.delete', id=contact.id), 'delete%s' % contact.id )}}
+                                    </span>
+                                </td>
                             </tr>
                         {% endfor %}
                     {% endfor%}
@@ -45,7 +59,12 @@
                                 <td>{{ contact.cell_phone }}</td>
                                 <td>{{ contact.work_phone }}</td>
                                 <td>{{ contact.email }}</td>
-                                <td></td>
+                                <td>
+                                    <span class="pull-right">
+                                        {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('contacts.edit', id=contact.id))}}
+                                        {{html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('contacts.delete', id=contact.id), 'delete%s' % contact.id )}}
+                                    </span>
+                                </td>
                             </tr>
                         {% endfor %}
                     {% endif %}

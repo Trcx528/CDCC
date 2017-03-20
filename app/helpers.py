@@ -53,19 +53,22 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
         ret += '>'
         for val in options:
             key = str(options[val])
-            val = str(val)
-            ret += '<option value="' + val + '"'
+            val = val
+            ret += '<option value="' + str(val) + '"'
             if ftype == "multiselect":
                 if val in value:
                     ret += ' selected=""'
+                print(val, value, val in value)
             elif val == value:
                 ret += ' selected=""'
             ret += '>' + key + '</option>'
         ret += '</select>'
     elif ftype == "textarea":
         rows = options['rows'] if 'rows' in options else 3
-        ret += '<textarea class="form-control" rows="' + str(rows) + '" name="' + inputName + '" id="' + id + '">'
-        ret += value + '</textarea>'
+        ret += '<textarea class="form-control" rows="' + str(rows) + '" name="' + inputName + '" id="' + id
+        if placeholder is not None:
+            ret += '" placeholder="' + placeholder
+        ret += '" >' + value + '</textarea>'
     elif ftype == "radio":
         for val in options:
             ret += '<div class="radio"><label><input name="' + inputName + '" id="' + id + str(val) + '"'
@@ -104,3 +107,15 @@ def csrf_token():
         session['csrf_token'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
     retVal = Markup('<input type="hidden" name="csrf_token" value="' + session['csrf_token'] + '">')
     return retVal
+
+
+def to_keyval(ilist, key='id', value='name', base={}):
+    for i in ilist:
+        base[i.__getattribute__(key)] = i.__getattribute__(value)
+    return base
+
+
+def to_list(ilist, value='id', base=[]):
+    for i in ilist:
+        base.append(i.__getattribute__(value))
+    return base
