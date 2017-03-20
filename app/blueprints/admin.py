@@ -13,6 +13,7 @@ def adminCheck():
 
 @blueprint.route('/admin')
 def index():
+    flash("Test", "success")
     return render_template('admin/index.html')
 
 @blueprint.route('/admin/room/create')
