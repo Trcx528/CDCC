@@ -33,8 +33,12 @@ def before_request():
     g.data = session.pop("validationData", {})
     g.loggedIn = False
     if "user" in session:
-        g.User = models.User.select().where(models.User.id == session["user"]).get()
-        g.loggedIn = True
+        try:
+            g.User = models.User.select().where(models.User.id == session["user"]).get()
+            g.loggedIn = True
+        except:
+            session.pop('user')
+            return redirect(url_for('main.login'))
     else:
         if not request.path.startswith('/static') and \
         request.path != url_for('main.login') and request.path != url_for('main.register'):

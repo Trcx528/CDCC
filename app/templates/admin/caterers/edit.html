@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}Edit Caterer{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+    <form class="form-horizontal" method="post">
+      <fieldset>
+        <legend>Edit Caterer</legend>
+        {{ html.csrf_token() }}
+        {{ html.form_group("text", "Name", placeholder="Name", value=caterer.name) }}
+        {{ html.form_group("text", "Phone", placeholder="(555) 555-5555", value=caterer.phone) }}
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            {{ html.button("Save", "submit", ["btn", "btn-primary"]) }}
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+{% endblock %}

@@ -32,9 +32,9 @@ def migrate(migrator, database, fake=False, **kwargs):
         phone = pw.CharField(max_length=255)
 
     @migrator.create_model
-    class Dishes(pw.Model):
+    class Dish(pw.Model):
         caterer = pw.ForeignKeyField(db_column='caterer_id', rel_model=Caterer, to_field='id')
-        dishName = pw.CharField(max_length=255)
+        name = pw.CharField(max_length=255)
         price = pw.DecimalField(auto_round=False, decimal_places=5, max_digits=10, rounding='ROUND_HALF_EVEN')
 
     @migrator.create_model
@@ -55,6 +55,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         capacity = pw.IntegerField()
         name = pw.CharField(max_length=255)
         price = pw.DecimalField(auto_round=False, decimal_places=5, max_digits=10, rounding='ROUND_HALF_EVEN')
+        comboRooms = pw.CharField(default='', max_length=255)
 
     @migrator.create_model
     class User(pw.Model):
@@ -63,6 +64,7 @@ def migrate(migrator, database, fake=False, **kwargs):
         emailAddress = pw.CharField(max_length=255, unique=True)
         passwordHash = pw.CharField(max_length=255)
         lastLogin = pw.DateTimeField(null=True)
+        isAdmin = pw.BooleanField(default=False)
 
     @migrator.create_model
     class Booking(pw.Model):
@@ -80,7 +82,7 @@ def migrate(migrator, database, fake=False, **kwargs):
     @migrator.create_model
     class Order(pw.Model):
         booking = pw.ForeignKeyField(db_column='booking_id', rel_model=Booking, to_field='id')
-        menu = pw.ForeignKeyField(db_column='menu_id', rel_model=Dishes, to_field='id')
+        menu = pw.ForeignKeyField(db_column='menu_id', rel_model=Dish, to_field='id')
         quantity = pw.IntegerField()
 
     @migrator.create_model
@@ -114,6 +116,6 @@ def rollback(migrator, database, fake=False, **kwargs):
 
     migrator.remove_model('organization')
 
-    migrator.remove_model('dishes')
+    migrator.remove_model('dish')
 
     migrator.remove_model('caterer')

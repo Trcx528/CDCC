@@ -21,6 +21,8 @@ def register():
 def processRegister(firstName, lastName, emailAddress, password):
     newUser = User(firstName=firstName, lastName=lastName, emailAddress=emailAddress)
     newUser.setPassword(password)
+    # temporary until we're in prod
+    newUser.isAdmin = True
     newUser.save()
     flash("User Registered Sucessfully", 'success')
     return redirect(url_for('main.index'))

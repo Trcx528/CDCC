@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Create Dish{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+    <form class="form-horizontal" method="post">
+      <fieldset>
+        <legend>Create Dish</legend>
+        {{ html.csrf_token() }}
+        {{ html.form_group("text", "Name", placeholder="Name") }}
+        {{ html.form_group("text", "Price", placeholder="$9.99") }}
+        {{ html.form_group("select", "Caterer", options=html.to_keyval(caterers)) }}
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            {{ html.button("Create", "submit", ["btn", "btn-primary"]) }}
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+{% endblock %}

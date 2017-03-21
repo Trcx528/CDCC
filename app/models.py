@@ -117,13 +117,13 @@ class Caterer(db.Model):
     phone = CharField()
 
 
-class Dishes(db.Model):
+class Dish(db.Model):
     caterer = ForeignKeyField(rel_model=Caterer, to_field='id', related_name='dishes')
-    dishName = CharField()
+    name = CharField()
     price = DecimalField()
 
 
 class Order(db.Model):
     booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='orders')
-    menu = ForeignKeyField(rel_model=Dishes, to_field='id', related_name='orders')
+    menu = ForeignKeyField(rel_model=Dish, to_field='id', related_name='orders')
     quantity = IntegerField()

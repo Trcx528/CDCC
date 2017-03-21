@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-condensed table-hover table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th class="pull-right">
+                            {{ html.button("Create Caterer", "link", ["btn", "btn-info", "btn-xs"], url_for('caterers.create')) }}
+                            {{ html.button("Create Dish", "link", ["btn", "btn-primary", "btn-xs"], url_for('dishes.create')) }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for caterer in caterers %}
+                        <tr class="info">
+                            <td>{{ caterer.name }}</td>
+                            <td>{{ caterer.phone }}</td>
+                            <td>
+                                <span class="pull-right">
+                                    {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('caterers.edit', id=caterer.id))}}
+                                    {% if caterer.dishes|count > 0 %}
+                                        {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs", "disabled"], url_for('caterers.delete', id=caterer.id), 'deleteCaterer%s' % caterer.id ) }}
+                                    {% else %}
+                                        {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('caterers.delete', id=caterer.id), 'deleteCaterer%s' % caterer.id ) }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% for dish in caterer.dishes %}
+                            <tr>
+                                <td>{{ dish.name }}</td>
+                                <td>${{ dish.price|round(2) }}</td>
+                                <td>
+                                    <span class="pull-right">
+                                        {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('dishes.edit', id=dish.id))}}
+                                        {{html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('dishes.delete', id=dish.id), 'delete%s' % dish.id )}}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

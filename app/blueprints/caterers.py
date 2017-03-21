@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, g, flash, redirect, url_for
 from app.validation import validate
-from app.models import Caterer, Dishes
+from app.models import Caterer, Dish
+from peewee import prefetch
 
 blueprint = Blueprint('caterers', __name__)
 
@@ -14,7 +15,10 @@ def adminCheck():
 
 @blueprint.route('/admin/caterers')
 def index():
-    return render_template('admin/caterers/index.html')
+    caterer = Caterer.select()
+    dishes = Dish.select()
+    caterer_dishes = prefetch(caterer, dishes)
+    return render_template('admin/caterers/index.html', caterers=caterer_dishes)
 
 
 @blueprint.route('/admin/caterers/create')
@@ -23,22 +27,29 @@ def create():
 
 
 @blueprint.route('/admin/caterers/create', methods=['POST'])
-@validate()
-def processCreate():
+@validate(Name="str|required", Phone="phone|required")
+def processCreate(name, phone):
+    Caterer(name=name, phone=phone).save()
+    flash("Created %s" % name, "success")
     return redirect(url_for('caterers.index'))
 
 
 @blueprint.route('/admin/caterers/<int:id>')
 def edit(id):
-    return render_template('admin/caterers/edit.html')
+    caterer = Caterer.select().where(Caterer.id == id).get()
+    return render_template('admin/caterers/edit.html', caterer=caterer)
 
 
 @blueprint.route('/admin/caterers/<int:id>', methods=['POST'])
-@validate()
-def processEdit(id):
+@validate(Name="str|required", Phone="phone|required")
+def processEdit(id, name, phone):
+    Caterer.update(name=name, phone=phone).where(Caterer.id == id).execute()
+    flash("Updated %s" % name, 'success')
     return redirect(url_for('caterers.index'))
 
 
 @blueprint.route('/admin/caterers/<int:id>/delete', methods=['POST'])
 def delete(id):
+    Caterer.delete().where(Caterer.id == id).execute()
+    flash('Caterer Deleted','success')
     return redirect(url_for('caterers.index'))
