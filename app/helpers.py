@@ -85,6 +85,19 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
     ret += '</div>'
     return Markup(ret)
 
+def checkbox(label, inputName=None, id=None, value=None):
+    if inputName is None:
+        inputName = label.replace(" ", "")
+    if id is None:
+        id = inputName
+    ret = '<div class="form-group"><div class="col-sm-10 col-sm-offset-2"><div class="checkbox">'
+    ret += '<label for="' + id + '">'
+    ret += '<input type="checkbox" name="' + inputName + '" id="' + id
+    if value:
+        ret += '" checked="checked'
+    ret += '">'
+    ret += label + '</label></div></div></div>'
+    return Markup(ret)
 
 def button(text, ftype="submit", cls=["btn", "btn-default"], destination=None, unique_id=None):
     classes = ' '.join(cls)

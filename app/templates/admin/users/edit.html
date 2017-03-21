@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Edit User{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <form class="form-horizontal" method="post">
+      <fieldset>
+        <legend>Edit User</legend>
+        {{ html.csrf_token() }}
+        {{ html.form_group("text", "First Name", placeholder="First", value=user.firstName) }}
+        {{ html.form_group("text", "Last Name", placeholder="Last", value=user.lastName) }}
+        {{ html.form_group("text", "Email Address", placeholder="Email", value=user.emailAddress) }}
+        {% if not g.User.isAdmin %}
+          {{ html.form_group("text", "Password", placeholder="Current Password")}}
+        {% endif %}
+        {{ html.form_group("password", "New Password", placeholder="New Password")}}
+        {{ html.form_group("password", "Confirm Password", placeholder="Confirm Password") }}
+        {{ html.checkbox("Admin", value=user.isAdmin)}}
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            {{ html.button("Save", "submit", ["btn", "btn-primary"]) }}
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}

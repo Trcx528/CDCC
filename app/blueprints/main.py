@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, g, flash, redirect, url_for, session
 from app.validation import validate
 from app.models import User
+from datetime import datetime
 
 blueprint = Blueprint('main', __name__)
 
@@ -16,7 +17,7 @@ def register():
 
 
 @blueprint.route('/register', methods=['POST'])
-@validate(FirstName="str|required", LastName="str|required", EmailAddress="email|required|dbunique",
+@validate(FirstName="str|required", LastName="str|required", EmailAddress="userEmail|required",
           Password="str|required|minlength=8", ConfirmPassword="str|required|matches=Password")
 def processRegister(firstName, lastName, emailAddress, password):
     newUser = User(firstName=firstName, lastName=lastName, emailAddress=emailAddress)
@@ -25,7 +26,7 @@ def processRegister(firstName, lastName, emailAddress, password):
     newUser.isAdmin = True
     newUser.save()
     flash("User Registered Sucessfully", 'success')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('users.index'))
 
 
 @blueprint.route('/login', methods=['POST', 'GET'])
@@ -37,6 +38,8 @@ def login(loginEmail=None, loginPassword=None):
     if loginUser > 0:
         loginUser = User.select().where(User.emailAddress == loginEmail).get()
         if loginUser.checkPassword(loginPassword):
+            loginUser.lastLogin = datetime.now()
+            loginUser.save()
             g.loggedIn = True
             session["user"] = loginUser.id
         else:
@@ -51,3 +54,19 @@ def logout():
     session.pop("user", None)
     flash("Logged Out!", "success")
     return redirect(request.referrer)
+
+
+@blueprint.route('/reserve')
+def reserve():
+    return render_template('main/reserve.html')
+
+
+@blueprint.route('/reserve/confirm', methods=['POST'])
+def confirmReserve():
+    return render_template('main/confirm.html')
+
+
+@blueprint.route('/reserve', methods=['POST'])
+def doReserve():
+    # TOOD make booking
+    return redirect('')

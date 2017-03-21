@@ -32,14 +32,17 @@
             
           </ul>
           <ul class="nav navbar-nav navbar-right">
+            {% if g.User.isAdmin %}
             <li class="dropdown">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">Admin <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="{{ url_for('rooms.index') }}">Rooms</a></li>
                 <li><a href="{{ url_for('contacts.index') }}">Contacts</a></li>
                 <li><a href="{{ url_for('caterers.index') }}">Caterers</a></li>
+                <li><a href="{{ url_for('users.index') }}">Users</a></li>
               </ul>
             </li>
+            {% endif %}
             <li>{{ html.button('Logout', 'post', ['test'], url_for('main.logout')) }}</li>
           </ul>
           {% else %}

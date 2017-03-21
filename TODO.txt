@@ -1,2 +1,4 @@
 * Ensure proper titles on all pages
 * Enforce specific code formating style
+* autofocus form fields
+* pagination/datatables
