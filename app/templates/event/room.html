@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Select a room{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <form class="form-horizontal" method="post">
+        <legend>
+            Find a space
+        </legend>
+        {{ html.csrf_token() }}
+        {{ html.form_group("text", "Capacity", placeholder="50", value=capacity) }}
+        {{ html.form_group("text", "Start", value=start)}}
+        {{ html.form_group("text", "Finish", value=finish) }}
+        {{ html.form_group("text", "Duration", value=duration) }}
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            {{ html.button("Search", "submit", ["btn", "btn-primary"]) }}
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+  var tomorrow = Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+  $("#Start, #Finish").datetimepicker({minDate: tomorrow, format: 'm/d/Y'})
+</script>
+{% endblock %}

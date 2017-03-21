@@ -9,7 +9,8 @@ def value_for(name):
     return ""
 
 
-def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[], innerDiv=["col-sm-10"]):
+def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[],
+               innerDiv=["col-sm-10"]):
     """
     ftype: [text|password|select|multiselect|textarea|radio]
     label: visible name
@@ -56,7 +57,7 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
             val = val
             ret += '<option value="' + str(val) + '"'
             if ftype == "multiselect":
-                if val in value:
+                if str(val) in value:
                     ret += ' selected=""'
             elif val == value:
                 ret += ' selected=""'
@@ -122,9 +123,10 @@ def csrf_token():
 
 
 def to_keyval(ilist, key='id', value='name', base={}):
+    ret = base.copy()
     for i in ilist:
-        base[i.__getattribute__(key)] = i.__getattribute__(value)
-    return base
+        ret[i.__getattribute__(key)] = i.__getattribute__(value)
+    return ret
 
 
 def to_list(ilist, value='id', base=[]):

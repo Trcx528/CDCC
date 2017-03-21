@@ -1,7 +1,8 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, g, flash, redirect, url_for, session
 from app.validation import validate
-from app.models import User
-from datetime import datetime
+from app.models import *
+
 
 blueprint = Blueprint('main', __name__)
 
@@ -54,19 +55,3 @@ def logout():
     session.pop("user", None)
     flash("Logged Out!", "success")
     return redirect(request.referrer)
-
-
-@blueprint.route('/reserve')
-def reserve():
-    return render_template('main/reserve.html')
-
-
-@blueprint.route('/reserve/confirm', methods=['POST'])
-def confirmReserve():
-    return render_template('main/confirm.html')
-
-
-@blueprint.route('/reserve', methods=['POST'])
-def doReserve():
-    # TOOD make booking
-    return redirect('')

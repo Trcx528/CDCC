@@ -1,8 +1,11 @@
 import re
+from datetime import datetime, date
 from functools import wraps
 from flask import request, g, redirect, session, abort
 from app.models import User
 
+datetimeFormat="%m/%d/%Y %H:%M %p"
+dateFormat="%m/%d/%Y"
 
 _validators = {}
 
@@ -197,7 +200,45 @@ def valUserPassword(value, fieldName=None, userid=None, admin=False, **commonArg
             errors.append("Invalid Password")
     return value, errors
 
+def valDate(value, fieldName=None, before=None, **commonArgs):
+    errors = commonValidation(value, fieldName, **commonArgs)
+    try:
+        print(value)
+        value = datetime.strptime(value, dateFormat)
+    except ValueError:
+        errors.append("Invalid Format")
+    if before is not None:
+        if before in request.form:
+            try:
+                bdate = datetime.strptime(request.form[before], dateFormat)
+                if value > bdate:
+                    errors.append("Date is too late")
+            except ValueError:
+                pass
+    if len(errors) > 0:
+        if isinstance(value, date):
+            value = value.strftime(dateFormat)
+    return value, errors
 
+
+def valDateTime(value, fieldName=None, before=None, **commonArgs):
+    errors = commonValidation(value, fieldName, **commonArgs)
+    try:
+        value = datetime.strptime(value, datetimeFormat)
+    except ValueError:
+        errors.append("Invalid Format")
+    if before is not None:
+        if before in request.form:
+            try:
+                bdate = datetime.strptime(request.form[before], datetimeFormat)
+                if value > bdate:
+                    errors.append("Date is too late")
+            except ValueError:
+                pass
+    if len(errors) > 0:
+        if isinstance(value, datetime):
+            value = value.strftime(datetimeFormat)
+    return value, errors
 
 registerValidator("str", valString)
 registerValidator("string", valString)
@@ -210,3 +251,5 @@ registerValidator("currency", valCurrency)
 registerValidator("phone", valPhone)
 registerValidator("userPassword", valUserPassword)
 registerValidator("userEmail", valUserEmail)
+registerValidator("date", valDate)
+registerValidator("datetime", valDateTime)
