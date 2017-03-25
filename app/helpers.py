@@ -9,6 +9,10 @@ def value_for(name):
     return ""
 
 
+def hidden(name, value):
+    ret = '<input type="hidden" value="' + str(value) + '" name="' + str(name) + '"/>'
+    return Markup(ret)
+
 def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[],
                innerDiv=["col-sm-10"]):
     """
@@ -118,8 +122,7 @@ def button(text, ftype="submit", cls=["btn", "btn-default"], destination=None, u
 def csrf_token():
     if 'csrf_token' not in session:
         session['csrf_token'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
-    retVal = Markup('<input type="hidden" name="csrf_token" value="' + session['csrf_token'] + '">')
-    return retVal
+    return hidden('csrf_token', session['csrf_token'])
 
 
 def to_keyval(ilist, key='id', value='name', base={}):

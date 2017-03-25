@@ -7,7 +7,6 @@ from config import *
 from flask_pw import Peewee
 import app.helpers as helpers
 
-
 app = Flask(__name__)
 app.jinja_env.globals.update(html=helpers)
 app.config.update(prod)

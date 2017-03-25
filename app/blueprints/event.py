@@ -1,41 +1,68 @@
 from datetime import datetime, date, timedelta
-from flask import Blueprint, render_template, g, flash, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, url_for, session
 from app.validation import validate, datetimeFormat
 from app.models import *
 from peewee import JOIN
 
 blueprint = Blueprint('event', __name__)
 
+class TenativeBooking():
+    start = None
+    finish = None
+    capacity = None
+    roomIds = None
 
-@blueprint.route('/event/plan')
+    @classmethod
+    def loadFromSession(cls, prefix=""):
+        s = cls()
+        today = datetime.fromordinal(date.today().toordinal())
+        s.start = session[prefix + 'start'] if prefix + 'start' in session else today + timedelta(days=1, hours=8)
+        s.finish = session[prefix + 'finish'] if prefix + 'finish' in session else today + timedelta(days=1, hours=12)
+        s.capacity = session[prefix + 'capacity'] if prefix + 'capacity' in session else 25
+        return s
+
+    @classmethod
+    def saveToSession(cls, prefix="", **kwargs):
+        for k in kwargs:
+            session[prefix + k] = kwargs[k]
+
+
+@blueprint.route('/book/search')
 def plan():
-    start = datetime.fromordinal(date.today().toordinal()) + timedelta(days=1, hours=8)
-    finish = datetime.fromordinal(date.today().toordinal()) + timedelta(days=1, hours=22)
-    return render_template('event/search.html', capacity=25, start=start.strftime(datetimeFormat),
-                           finish=finish.strftime(datetimeFormat))
+    t = TenativeBooking.loadFromSession()
+    return render_template('event/search.html', capacity=t.capacity, start=t.start.strftime(datetimeFormat),
+                           finish=t.finish.strftime(datetimeFormat))
 
-@blueprint.route('/event/plan', methods=['POST'])
+@blueprint.route('/book/search', methods=['POST'])
 @validate(Capacity="int|required", Start="datetime|required|before=Finish", Finish="datetime|required")
 def processPlan(capacity, start, finish):
-    session['Capacity'] = capacity
-    session['Start'] = start
-    session['Finish'] = finish
+    TenativeBooking.saveToSession(capacity=capacity, start=start, finish=finish)
     return redirect(url_for('event.selectRoom'))
 
 
-@blueprint.route('/event/room')
+@blueprint.route('/book/room')
 def selectRoom():
-    start = session.pop('Start', datetime.fromordinal(date.today().toordinal()) + timedelta(days=1, hours=8))
-    finish = session.pop('Finish', datetime.fromordinal(date.today().toordinal()) + timedelta(days=1, hours=22))
-    capacity = session.pop('Capacity', 25)
     #busyRooms = Booking.select().where((Booking.startTime >= start) & (Booking.endTime <= finish)).alias('bk')
     #rooms = Room.select().join(busyRooms, JOIN.LEFT_OUTER, on=(Room.id == ))
     # TODO Make logic to not show already booked rooms
-    rooms = {}
-    i = 0
+    t = TenativeBooking.loadFromSession()
+    rooms = []
     for room in Room.select():
-        i = i + 1
-        rooms[i] = {'rooms': [room], 'total': room.price}
+        rooms.append({'ids': [room.id], 'total': room.price, 'capacity': room.capacity, 'name': room.name,
+                      'optionId': len(rooms) + 1})
 
     # finalize
-    return render_template('event/room.html', rooms=ret)
+    return render_template('event/room.html', rooms=rooms, start=t.start, finish=t.finish, capacity=t.capacity)
+
+
+@blueprint.route('/book/room', methods=['POST'])
+@validate(roomIds='list|required|type=int')
+def processSelectRoom(roomIds):
+    TenativeBooking.saveToSession(roomIds=roomIds)
+    return redirect(url_for('event.selectFood'))
+
+
+@blueprint.route('/book/caterers')
+def selectFood():
+    dishes = Dish.select().join(Caterer)
+    return render_template('event/caterer.html', dishes=dishes)

@@ -240,6 +240,20 @@ def valDateTime(value, fieldName=None, before=None, **commonArgs):
             value = value.strftime(datetimeFormat)
     return value, errors
 
+
+def valList(value, fieldName=None, type=None, **commonArgs):
+    errors = commonValidation(value, fieldName, **commonArgs)
+    if type == 'int':
+        value = value.replace('[', '').replace(']', '').replace(' ', '').split(',')
+        tmp = []
+        for val in value:
+            tmp.append(int(val))
+        value = tmp
+    else:
+        raise ValueError('Type %s is not supported' % type)
+    return value, errors
+
+
 registerValidator("str", valString)
 registerValidator("string", valString)
 registerValidator("int", valInt)
@@ -253,3 +267,4 @@ registerValidator("userPassword", valUserPassword)
 registerValidator("userEmail", valUserEmail)
 registerValidator("date", valDate)
 registerValidator("datetime", valDateTime)
+registerValidator("list", valList)

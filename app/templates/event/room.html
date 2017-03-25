@@ -3,28 +3,43 @@
 {% block content %}
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
-    <form class="form-horizontal" method="post">
-        <legend>
-            Find a space
-        </legend>
-        {{ html.csrf_token() }}
-        {{ html.form_group("text", "Capacity", placeholder="50", value=capacity) }}
-        {{ html.form_group("text", "Start", value=start)}}
-        {{ html.form_group("text", "Finish", value=finish) }}
-        {{ html.form_group("text", "Duration", value=duration) }}
-        <div class="form-group">
-          <div class="col-lg-10 col-lg-offset-2">
-            {{ html.button("Search", "submit", ["btn", "btn-primary"]) }}
-          </div>
-        </div>
-      </fieldset>
-    </form>
+    <h2>Select a room</h2>
+    <p>
+      Looking for rooms to host an event from {{start}} to {{finish}} for {{capacity}} people.
+    </p>
+    <table class="table table-hover table-condensed table-responsive table-striped">
+      <thead>
+        <tr>
+          <th>Rooms</th>
+          <th>Capacity</th>
+          <th>Time</th>
+          <th>Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for room in rooms %}
+        <tr>
+          <td>{{room['name']}}</td>
+          <td>{{room['capacity']}}</td>
+          <td>{{start}} - {{finish}}</td>
+          <td>${{room['total']|round(2)}}</td>
+          <td>
+            <a href="{{url_for('event.processSelectRoom')}}" class="btn btn-xs btn-primary pull-right" onclick="event.preventDefault();$('#frm{{ room['optionId'] }}').submit()">Select</a>
+            <form method="POST" id="frm{{ room['optionId'] }}" >
+              {{ html.csrf_token() }}
+              {{ html.hidden('roomIds', room['ids']) }}
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
   </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-  var tomorrow = Date(new Date().getTime() + 24 * 60 * 60 * 1000)
-  $("#Start, #Finish").datetimepicker({minDate: tomorrow, format: 'm/d/Y'})
 </script>
 {% endblock %}
