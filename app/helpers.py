@@ -16,7 +16,7 @@ def hidden(name, value):
 def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[],
                innerDiv=["col-sm-10"]):
     """
-    ftype: [text|password|select|multiselect|textarea|radio]
+    ftype: [text|password|select|multiselect|textarea|radio|number]
     label: visible name
     inputName: internal name (no spaces)
     """
@@ -44,7 +44,7 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
     if innerDiv is not None:
         ret += '<div class="' + ' '.join(innerDiv) + '">'
 
-    if ftype == "text" or ftype == "password":
+    if ftype == "text" or ftype == "password" or ftype == "number":
         ret += '<input class="form-control" name="' + inputName + '" type="' + ftype + '" id="' + id + '"'
         if value is not None:
             ret += ' value="' + str(value) + '"'

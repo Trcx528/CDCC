@@ -13,6 +13,7 @@
           <th>Rooms</th>
           <th>Capacity</th>
           <th>Time</th>
+          <th>Rate</th>
           <th>Price</th>
           <th></th>
         </tr>
@@ -23,6 +24,7 @@
           <td>{{room['name']}}</td>
           <td>{{room['capacity']}}</td>
           <td>{{start}} - {{finish}}</td>
+          <td>${{room['rate']|round(2)}} /hour</td>
           <td>${{room['total']|round(2)}}</td>
           <td>
             <a href="{{url_for('event.processSelectRoom')}}" class="btn btn-xs btn-primary pull-right" onclick="event.preventDefault();$('#frm{{ room['optionId'] }}').submit()">Select</a>

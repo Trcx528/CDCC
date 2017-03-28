@@ -69,6 +69,10 @@ class Room(db.Model):
         self.save()
         oroom.save()
 
+    
+    def getTotal(self, duration):
+        return round(duration * float(self.price), 2)
+
 
 class Organization(db.Model):
     address = CharField()

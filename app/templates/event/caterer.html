@@ -4,36 +4,56 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Select Caterering</h2>
-    
-    <table class="table table-hover table-condensed table-responsive table-striped">
-      <thead>
-        <tr>
-          <th>Dish Name</th>
-          <th>Caterer</th>
-          <th>Quantity</th>
-          <th>Price</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for dish in dishes %}
-        <tr>
-          <td>{{dish.name}}</td>
-          <td>{{dish.caterer.name}}</td>
-          <td><input type="number" min="0" class="update-trigger" name="{{dish.id}}" value="0" data-price="{{dish.price|round(2)}}"/></td>
-          <td>${{dish.price|round(2)}}</td>
-          <td><p id="{{dish.id}}Total">$0</p></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="info">
-          <th colspan="4">Total</th>
-          <th id="finalTotal">$0</th>
-        </tr>
-      </tfoot>
-    </table>
-    
+    <form method="POST">
+      {{html.csrf_token()}}
+      <table class="table table-hover table-condensed table-responsive table-striped">
+        <thead>
+          <tr>
+            <th>Dish Name</th>
+            <th>Caterer</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dish in dishes %}
+          <tr>
+            <td>{{dish.name}}</td>
+            <td>{{dish.caterer.name}}</td>
+            <td><input type="number" min="0" class="update-trigger" name="dish_{{dish.id}}" value="{{ food[dish.id|string] if dish.id|string in food else 0 }}" data-price="{{dish.price|round(2)}}"/></td>
+            <td>${{dish.price|round(2)}}</td>
+            <td><p id="dish_{{dish.id}}Total" class="pull-right">$0</p></td>
+          </tr>
+          {% endfor %}
+          <tr class="active">
+            <th colspan="4">Caterering Total</th>
+            <th><span id="catereringTotal" class="pull-right">$0</span></th>
+          </tr>
+          {% for room in rooms %}
+          <tr>
+            <td colspan="2">{{room.name}}</td>
+            <td>{{roomHours|round(2)}} Hours</td>
+            <td>${{room.price|round(2)}}/hour</td>
+            <td><span class="room-total pull-right" data-rate="{{room.price|round(2)}}" data-hours="{{roomHours|round(2)}}">$</span></td>
+          </tr>
+          {% endfor %}
+          <tr class="active">
+            <th colspan="2">Room Total</th>
+            <th>{{roomHours|round(2)}} Hours</th>
+            <th>${{roomPrice|round(2)}}/hour</th>
+            <th><span id="roomTotal" data-total="{{roomTotal|round(2)}}" class="pull-right">${{roomTotal|round(2)}}</span></th>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="info">
+            <th colspan="4">Total</th>
+            <th><span id="finalTotal" class="pull-right">$0</span></th>
+          </tr>
+        </tfoot>
+      </table>
+      <button type="submit" class="btn btn-primary pull-right">Submit</button>
+    </form>
   </div>
 </div>
 {% endblock %}
@@ -51,8 +71,12 @@
       cateringTotal += total;
       $("#"+this.name+"Total").html("$" + total.toFixed(2));
     })
-    $("#finalTotal").html("$" + cateringTotal.toFixed(2)); 
+    $("#catereringTotal").html("$" + cateringTotal.toFixed(2));
+    $("#finalTotal").html('$' + (cateringTotal + $('#roomTotal').data('total')).toFixed(2));
   }
   updateTotals();
+  $('.room-total').each(function(e) {
+    $(this).html("$" + ($(this).data('rate') * $(this).data('hours') ));
+  });
 </script>
 {% endblock %}

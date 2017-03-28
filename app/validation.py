@@ -96,6 +96,9 @@ def valUserEmail(value, fieldName=None, userid=None, **commonArgs):
 
 def valEmail(value, fieldName=None, dbunique=None, **commonArgs):
     errors = commonValidation(fieldName, value, **commonArgs)
+    # allow for blank email address, that is handled by the common required directive
+    if value == "":
+        return value, errors
     if not re.match("[^@]+@[^@]+.[^@]+", value):
         errors.append("Invalid Email Format")
     return value, errors
@@ -122,9 +125,6 @@ def valInt(value, fieldName=None, max=None, min=None, **commonArgs):
         if min is not None:
             if value < int(min):
                 errors.append("Must be greater than %s" % min)
-    else:
-        if len(errors) == 0:
-            errors.append("Failed to parse")
     return value, errors
 
 
@@ -160,6 +160,10 @@ def valBool(value, fieldName=None, **commonArgs):
 
 def valCurrency(value, **args):
     value = value.replace("$", "")
+    return valFloat(value, **args)
+
+def valPercent(value, **args):
+    value = value.replace("%", "")
     return valFloat(value, **args)
 
 
@@ -262,6 +266,7 @@ registerValidator("check", valBool)
 registerValidator("multiselect", valMutliSelect)
 registerValidator("decimal", valFloat)
 registerValidator("currency", valCurrency)
+registerValidator("percent", valPercent)
 registerValidator("phone", valPhone)
 registerValidator("userPassword", valUserPassword)
 registerValidator("userEmail", valUserEmail)

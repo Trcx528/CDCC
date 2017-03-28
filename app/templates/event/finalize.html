@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}Finalize Booking{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Finalize Booking</h2>
+    <form class="form-horizontal" method="POST">
+        {{ html.csrf_token()}}
+        {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.name) }}
+        {{ html.form_group("number", "Discount Percent", placeholder="10%", value=booking.discountPercent) }}
+        {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount) }}
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="attachments">Attachments</label>
+            <div class="col-sm-10">
+                <input class="" name="attachments" id="attachments" type="file" multiple="multiple" style="margin-top: 10px" enctype="multipart/form-data">
+            </div>
+        </div>
+        <div style="margin-top: 20px;"></div>
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#existing" data-toggle="tab" aria-expanded="false">Existing Customer</a></li>
+            <li class=""><a href="#newContact" data-toggle="tab" aria-expanded="true">New Contact</a></li>
+            <li class=""><a href="#newOrg" data-toggle="tab" aria-expanded="true">New Organization</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade active in" id="existing" style="padding-top: 10px">
+                <input type="hidden" name="existing"  value="existing"/>
+                {{ html.form_group("select", "Organization", options=html.to_keyval(orgs)) }}
+                {{ html.form_group("select", "Contact", options=html.to_keyval(contacts)) }}
+            </div>
+            <div class="tab-pane fade" id="newContact" style="padding-top: 10px">
+                <input type="hidden" name="newContact"  value="newContact"/>
+                {{ html.form_group("select", "Organization", options=html.to_keyval(orgs)) }}
+                {{ html.form_group("text", "Contact Name", placeholder="Name") }}
+                {{ html.form_group("text", "Email", placeholder="user@company.com") }}
+                {{ html.form_group("text", "Cell Phone", placeholder="(555) 555-5555") }}
+                {{ html.form_group("text", "Work Phone", placeholder="(555) 555-5555") }}
+            </div>
+            <div class="tab-pane fade" id="newOrg" style="padding-top: 10px">
+                <input type="hidden" name="newOrg"  value="newOrg"/>
+                {{ html.form_group("text", "Organization Name", placeholder="Organization Name") }}
+                {{ html.form_group("textarea", "Organization Address", placeholder="Company Name 123 Main St. City, State Zip")}}
+                {{ html.form_group("text", "Contact Name", placeholder="Name") }}
+                {{ html.form_group("text", "Email", placeholder="user@company.com") }}
+                {{ html.form_group("text", "Cell Phone", placeholder="(555) 555-5555") }}
+                {{ html.form_group("text", "Work Phone", placeholder="(555) 555-5555") }}
+            
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary pull-right">Submit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+function disabler () {
+    $('.tab-content > div').each(function(){
+        if ($(this).hasClass('active')) {
+            $(this).find('input, select, textarea').each(function () {
+                $(this).removeAttr('disabled');
+            })
+        } else {
+            $(this).find('input, select, textarea').each(function (){
+                $(this).attr('disabled', 'disabled');
+            })
+        }
+    })
+}
+$(".nav-tabs a").on('click', function(){setTimeout(disabler, 200);});
+disabler();
+</script>
+{% endblock %}

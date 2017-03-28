@@ -6,3 +6,9 @@
 .text-bold {
     font-weight: bolder;
 }
+
+.contentWrapper {
+    /*** this offsets the negative margin on .row from bootstrap ***/
+    padding-left: 15px;
+    padding-right: 15px;
+}

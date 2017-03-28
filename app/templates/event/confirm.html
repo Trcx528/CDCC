@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block title %}Confirm Booking{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Confirm Booking</h2>
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Event Name</span></span>
+        <span class="col-sm-10">{{booking.name}}</span>
+    </div>
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Time</span></span>
+        <span class="col-sm-10">{{booking.start}} - {{booking.finish}}</span>
+    </div>
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Rooms</span></span>
+        <span class="col-sm-10">
+            {% for r in booking.rooms() %}
+                {{r.name}}, {# TODO  fix trailing comma #} 
+            {% endfor %}
+        </span>
+    </div>
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Contact</span></span>
+        <span class="col-sm-10">{{booking.contact().name}} {% if booking.organization %}({{booking.organization().name}}){% endif %}</span>
+    </div>
+    
+    <div>
+        <table class="table table-condensed table-hover table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Rate</th>
+                    <th><span class="pull-right">Price</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="active">
+                    <td colspan="4">Caterering</td>
+                </tr>
+                {% for food in booking.getFood() %}
+                <tr>
+                    <td>{{food['name']}}</td>
+                    <td>{{food['quantity']}}</td>
+                    <td>${{food['rate']|round(2)}}</td>
+                    <td><span class="pull-right">${{food['total']|round(2)}}</span></td>
+                </tr>
+                {% endfor %}
+                <tr class="info">
+                    <td colspan="3">Caterering Total</td>
+                    <td><span class="pull-right">${{booking.foodTotal()|round(2)}}</span></td>
+                </tr>
+                <tr class="active">
+                    <td colspan="4">Rooms</td>
+                </tr>
+                {% for room in booking.rooms() %}
+                <tr>
+                    <td>{{room.name}}</td>
+                    <td>{{booking.duration()}} Hours</td>
+                    <td>${{room.price|round(2)}}/Hour</td>
+                    <td><span class="pull-right">${{room.getTotal(booking.duration())|round(2)}}</span></td>
+                </tr>
+                {% endfor %}
+                <tr class="info">
+                    <td colspan="3">Room Total</td>
+                    <td><span class="pull-right">${{booking.roomTotal()|round(2)}}</span></td>
+                </tr>
+                <tr class="active">
+                    <td colspan="3">Subtotal</td>
+                    <td><span class="pull-right">${{booking.subTotal()|round(2)}}</span></td>
+                </tr>
+                {% if booking.getDiscount() > 0 %}
+                <tr>
+                    <td colspan="3">Discount</td>
+                    <td><span class="pull-right">${{booking.getDiscount()|round(2)}}</span></td>
+                </tr>
+                {% endif %}
+            </tbody>
+            <tfoot>
+                <tr class="info">
+                    <td colspan="3">Grand Total</td>
+                    <td><span class="pull-right">${{booking.total()|round(2)}}</span></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+{% endblock %}
