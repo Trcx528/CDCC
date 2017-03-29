@@ -4,6 +4,9 @@ import re
 import os
 from app import app
 
+# for uwsgi
+application = app
+
 if __name__ == '__main__':
     try:
         import config
@@ -20,4 +23,4 @@ else:
         print("Launching %s for vscode debugger" % app.name)
         from flask.cli import main
         sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
-        sys.exit(main())
+        #sys.exit(main())
