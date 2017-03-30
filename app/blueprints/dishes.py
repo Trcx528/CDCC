@@ -34,7 +34,8 @@ def edit(id):
 @blueprint.route('/admin/dishes/<int:id>', methods=['POST'])
 @validate(Name="str|required", Price="currency|required", Caterer="int|required")
 def processEdit(id, name, price, caterer):
-    Dish.update(name=name, price=price, caterer_id=caterer).where(Dish.id == id).execute()
+    Dish.update(name=name, price=price,
+                caterer=Caterer.select().where(Caterer.id == caterer).get()).where(Dish.id == id).execute()
     flash("Dish updated", 'success')
     return redirect(url_for('caterers.index'))
 
