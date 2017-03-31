@@ -26,7 +26,6 @@ class Room(db.Model):
 
     def adjacentRoomIds(self):
         ret = []
-        print(self.comboRooms)
         for id in self.comboRooms.split(','):
             if id != '':
                 ret.append(id)
@@ -68,11 +67,12 @@ class Room(db.Model):
         oroom.comboRooms = ",".join(orids)
         self.save()
         oroom.save()
-
     
     def getTotal(self, duration):
-        return round(duration * float(self.price), 2)
+        return duration * float(self.price)
 
+    def perPersonRate(self):
+        return self.price/self.capacity
 
 class Organization(db.Model):
     address = CharField()
@@ -99,12 +99,6 @@ class Booking(db.Model):
     isCanceled = BooleanField()
     startTime = DateTimeField()
 
-    def rooms(self):
-        ret = []
-        for room in BookingRoom.select().where(BookingRoom.booking == self).join(Room):
-            ret.append(room)
-        return ret
-
 
 class Attachment(db.Model):
     booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='attachments')
@@ -129,5 +123,5 @@ class Dish(db.Model):
 
 class Order(db.Model):
     booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='orders')
-    menu = ForeignKeyField(rel_model=Dish, to_field='id', related_name='orders')
+    dish = ForeignKeyField(rel_model=Dish, to_field='id', related_name='orders')
     quantity = IntegerField()

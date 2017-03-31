@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}Upcoming Events{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Upcoming Events</h2>
+    <table class="table table-condensed table-hover table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Time</th>
+                <th>Rooms</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+                <tr>
+                    <td>{{booking.eventName}}</td>
+                    <td>{{booking.startTime|datetime}} - {{booking.endTime|datetime}}</td>
+                    <td>
+                        {% for br in booking.bookingroom_set_prefetch %}
+                            {{br.room.name}}, 
+                        {% endfor %}
+                    </td>
+                    <td>{{booking.finalPrice|currency}}</td>
+                    <td>
+                        <span class="pull-right">
+                            {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('bookings.edit', id=booking.id))}}
+                            {{html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('bookings.delete', id=booking.id), 'delete%s' % booking.id )}}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+</script>
+{% endblock %}

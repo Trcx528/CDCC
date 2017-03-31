@@ -82,7 +82,7 @@ def migrate(migrator, database, fake=False, **kwargs):
     @migrator.create_model
     class Order(pw.Model):
         booking = pw.ForeignKeyField(db_column='booking_id', rel_model=Booking, to_field='id')
-        menu = pw.ForeignKeyField(db_column='menu_id', rel_model=Dish, to_field='id')
+        dish = pw.ForeignKeyField(db_column='dish_id', rel_model=Dish, to_field='id')
         quantity = pw.IntegerField()
 
     @migrator.create_model

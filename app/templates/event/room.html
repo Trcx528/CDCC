@@ -4,28 +4,34 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Select a room</h2>
+    <div class="progress"><div class="progress-bar" style="width: 25%;"></div></div>
     <p>
-      Looking for rooms to host an event from {{start}} to {{finish}} for {{capacity}} people.
+      {% if start.date() == finish.date() %}
+        Looking for rooms to host an event on {{start.date()|date}} from {{start.time()|time}} to {{finish.time()|time}}.
+      {% else %}
+        Looking for rooms to host an event from {{start|datetime}} to {{finish|datetime}}.
+      {% endif %}
+      {{ html.button("Back", "link", ['btn', 'btn-default', 'pull-right', 'btn-xs'], url_for('event.plan')) }}
     </p>
     <table class="table table-hover table-condensed table-responsive table-striped">
       <thead>
         <tr>
           <th>Rooms</th>
           <th>Capacity</th>
-          <th>Time</th>
           <th>Rate</th>
+          <th>Per Person</th>
           <th>Price</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         {% for room in rooms %}
-        <tr>
+        <tr class="{{ 'info' if selectedIds == room['ids'] else '' }}">
           <td>{{room['name']}}</td>
           <td>{{room['capacity']}}</td>
-          <td>{{start}} - {{finish}}</td>
-          <td>${{room['rate']|round(2)}} /hour</td>
-          <td>${{room['total']|round(2)}}</td>
+          <td>{{room['rate']|currency}} /hour</td>
+          <td>{{(room['rate']/room['capacity'])|currency}}</td>
+          <td>{{room['total']|currency}}</td>
           <td>
             <a href="{{url_for('event.processSelectRoom')}}" class="btn btn-xs btn-primary pull-right" onclick="event.preventDefault();$('#frm{{ room['optionId'] }}').submit()">Select</a>
             <form method="POST" id="frm{{ room['optionId'] }}" >

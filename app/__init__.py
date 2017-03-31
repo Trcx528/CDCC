@@ -5,15 +5,23 @@ from werkzeug import find_modules, import_string
 from playhouse.db_url import connect
 from config import *
 from flask_pw import Peewee
+from flask_debugtoolbar import DebugToolbarExtension
 import app.helpers as helpers
 
 app = Flask(__name__)
 app.jinja_env.globals.update(html=helpers)
+app.jinja_env.filters['currency'] = helpers.format_currency
+app.jinja_env.filters['date'] = helpers.format_date
+app.jinja_env.filters['time'] = helpers.format_time
+app.jinja_env.filters['datetime'] = helpers.format_datetime
+
+
 app.config.update(prod)
 if prod['DEBUG'] is True or prod['DEBUG'] is None:
     app.config.update(dev)
     app.debug = True
 db = Peewee(app)
+toobar = DebugToolbarExtension(app)
 if db:
     import app.models as models
 app.cli.add_command(db.cli, 'db')

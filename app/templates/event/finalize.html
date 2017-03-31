@@ -4,11 +4,12 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Finalize Booking</h2>
+    <div class="progress"><div class="progress-bar" style="width: 75%;"></div></div>
     <form class="form-horizontal" method="POST">
         {{ html.csrf_token()}}
         {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.name) }}
-        {{ html.form_group("number", "Discount Percent", placeholder="10%", value=booking.discountPercent) }}
-        {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount) }}
+        {{ html.form_group("number", "Discount Percent", placeholder="10%", value=booking.discountPercent, min=0, max=100) }}
+        {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount, min=0) }}
         <div class="form-group">
             <label class="col-sm-2 control-label" for="attachments">Attachments</label>
             <div class="col-sm-10">
@@ -17,25 +18,25 @@
         </div>
         <div style="margin-top: 20px;"></div>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#existing" data-toggle="tab" aria-expanded="false">Existing Customer</a></li>
-            <li class=""><a href="#newContact" data-toggle="tab" aria-expanded="true">New Contact</a></li>
-            <li class=""><a href="#newOrg" data-toggle="tab" aria-expanded="true">New Organization</a></li>
+            <li class="{{ 'active' if existing else '' }}"><a href="#existing" data-toggle="tab" aria-expanded="{{ 'false' if existing else 'true' }}">Existing Customer</a></li>
+            <li class="{{ 'active' if newContact else '' }}"><a href="#newContact" data-toggle="tab" aria-expanded="{{ 'false' if newContact else 'true' }}">New Contact</a></li>
+            <li class="{{ 'active' if newOrg else '' }}"><a href="#newOrg" data-toggle="tab" aria-expanded="{{ 'false' if newOrg else 'true' }}">New Organization</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane fade active in" id="existing" style="padding-top: 10px">
+            <div class="tab-pane fade {{ 'active in' if existing else '' }}" id="existing" style="padding-top: 10px">
                 <input type="hidden" name="existing"  value="existing"/>
-                {{ html.form_group("select", "Organization", options=html.to_keyval(orgs)) }}
-                {{ html.form_group("select", "Contact", options=html.to_keyval(contacts)) }}
+                {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"}), value=booking.organizationId) }}
+                {{ html.form_group("select", "Contact", options=html.to_keyval(contacts), value=booking.contactId) }}
             </div>
-            <div class="tab-pane fade" id="newContact" style="padding-top: 10px">
+            <div class="tab-pane fade {{ 'active in' if newContact else '' }}" id="newContact" style="padding-top: 10px">
                 <input type="hidden" name="newContact"  value="newContact"/>
-                {{ html.form_group("select", "Organization", options=html.to_keyval(orgs)) }}
+                {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"})) }}
                 {{ html.form_group("text", "Contact Name", placeholder="Name") }}
                 {{ html.form_group("text", "Email", placeholder="user@company.com") }}
                 {{ html.form_group("text", "Cell Phone", placeholder="(555) 555-5555") }}
                 {{ html.form_group("text", "Work Phone", placeholder="(555) 555-5555") }}
             </div>
-            <div class="tab-pane fade" id="newOrg" style="padding-top: 10px">
+            <div class="tab-pane fade {{ 'active in' if newOrg else '' }}" id="newOrg" style="padding-top: 10px">
                 <input type="hidden" name="newOrg"  value="newOrg"/>
                 {{ html.form_group("text", "Organization Name", placeholder="Organization Name") }}
                 {{ html.form_group("textarea", "Organization Address", placeholder="Company Name 123 Main St. City, State Zip")}}
@@ -46,7 +47,7 @@
             
             </div>
         </div>
-
+        {{ html.button('Back', 'link', ['btn', 'btn-default'], url_for('event.selectFood')) }}
         <button type="submit" class="btn btn-primary pull-right">Submit</button>
     </form>
   </div>
@@ -54,6 +55,29 @@
 {% endblock %}
 {% block script %}
 <script>
+var orgData = {{ json|tojson }};
+var formData = {{ g.data|tojson }};
+function filterContacts() {
+    var orgId = $("#Organization").val();
+    var flag = false;
+    $('#Contact > option').each(function(){
+        var data = orgData[orgId];
+        if (this.value in data) {
+            $(this).show();
+            $(this).removeAttr('disabled');
+            $(this)
+            if (!flag){
+                flag=true;
+                $('#Contact').val(this.value);
+            }
+        } else {
+            $(this).hide();
+            //set the disabled attr as a fall back
+            $(this).attr('disabled','disabled');
+        }
+    })
+}
+
 function disabler () {
     $('.tab-content > div').each(function(){
         if ($(this).hasClass('active')) {
@@ -67,7 +91,10 @@ function disabler () {
         }
     })
 }
+
+$("#Organization").on('change', function(){ filterContacts();});
 $(".nav-tabs a").on('click', function(){setTimeout(disabler, 200);});
+filterContacts();
 disabler();
 </script>
 {% endblock %}

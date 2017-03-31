@@ -4,6 +4,7 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Confirm Booking</h2>
+    <div class="progress"><div class="progress-bar" style="width: 100%;"></div></div>
     <div>
         <span class="col-sm-2"><span class="pull-right">Event Name</span></span>
         <span class="col-sm-10">{{booking.name}}</span>
@@ -22,7 +23,7 @@
     </div>
     <div>
         <span class="col-sm-2"><span class="pull-right">Contact</span></span>
-        <span class="col-sm-10">{{booking.contact().name}} {% if booking.organization %}({{booking.organization().name}}){% endif %}</span>
+        <span class="col-sm-10">{{booking.contact().name}} {% if booking.organization() %}({{booking.organization().name}}){% endif %}</span>
     </div>
     
     <div>
@@ -36,54 +37,56 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="active">
+                <tr>
                     <td colspan="4">Caterering</td>
                 </tr>
                 {% for food in booking.getFood() %}
                 <tr>
                     <td>{{food['name']}}</td>
                     <td>{{food['quantity']}}</td>
-                    <td>${{food['rate']|round(2)}}</td>
-                    <td><span class="pull-right">${{food['total']|round(2)}}</span></td>
+                    <td>{{food['rate']|currency}}</td>
+                    <td><span class="pull-right">{{food['total']|currency}}</span></td>
                 </tr>
                 {% endfor %}
-                <tr class="info">
-                    <td colspan="3">Caterering Total</td>
-                    <td><span class="pull-right">${{booking.foodTotal()|round(2)}}</span></td>
-                </tr>
                 <tr class="active">
+                    <td colspan="3">Caterering Total</td>
+                    <td><span class="pull-right">{{booking.foodTotal()|currency}}</span></td>
+                </tr>
+                <tr>
                     <td colspan="4">Rooms</td>
                 </tr>
                 {% for room in booking.rooms() %}
                 <tr>
                     <td>{{room.name}}</td>
                     <td>{{booking.duration()}} Hours</td>
-                    <td>${{room.price|round(2)}}/Hour</td>
-                    <td><span class="pull-right">${{room.getTotal(booking.duration())|round(2)}}</span></td>
+                    <td>{{room.price|currency}}/Hour</td>
+                    <td><span class="pull-right">{{room.getTotal(booking.duration())|currency}}</span></td>
                 </tr>
                 {% endfor %}
-                <tr class="info">
+                <tr class="active">
                     <td colspan="3">Room Total</td>
-                    <td><span class="pull-right">${{booking.roomTotal()|round(2)}}</span></td>
+                    <td><span class="pull-right">{{booking.roomTotal()|currency}}</span></td>
                 </tr>
                 <tr class="active">
                     <td colspan="3">Subtotal</td>
-                    <td><span class="pull-right">${{booking.subTotal()|round(2)}}</span></td>
+                    <td><span class="pull-right">{{booking.subTotal()|currency}}</span></td>
                 </tr>
                 {% if booking.getDiscount() > 0 %}
                 <tr>
                     <td colspan="3">Discount</td>
-                    <td><span class="pull-right">${{booking.getDiscount()|round(2)}}</span></td>
+                    <td><span class="pull-right">{{booking.getDiscount()|currency}}</span></td>
                 </tr>
                 {% endif %}
             </tbody>
             <tfoot>
                 <tr class="info">
                     <td colspan="3">Grand Total</td>
-                    <td><span class="pull-right">${{booking.total()|round(2)}}</span></td>
+                    <td><span class="pull-right">{{booking.total()|currency}}</span></td>
                 </tr>
             </tfoot>
         </table>
+        {{ html.button('Back', 'link', ['btn', 'btn-default'], url_for('event.finalizeBooking')) }}
+        {{ html.button("Confirm", "post", ['btn', 'btn-primary', 'pull-right'], url_for('event.processConfirmBooking')) }}
     </div>
   </div>
 </div>

@@ -29,26 +29,28 @@
         <div id="navbar" class="navbar-collapse collapse">
           {% if g.loggedIn %}
           <ul class="nav navbar-nav">
-            
+            <li class="{{ html.active(url_for('event.plan')) }}">{{ html.button("New Event", "link", [], url_for('event.plan')) }}</li>
+            <li class="{{ html.active(url_for('bookings.index')) }}">{{ html.button("Event List", "link", [], url_for('bookings.index')) }}</li>
+            <li class="{{ html.active('#') }}">{{ html.button("Reports", "link", [], '#') }}</li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if g.User.isAdmin %}
             <li class="dropdown">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">Admin <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="{{ url_for('rooms.index') }}">Rooms</a></li>
-                <li><a href="{{ url_for('contacts.index') }}">Contacts</a></li>
-                <li><a href="{{ url_for('caterers.index') }}">Caterers</a></li>
-                <li><a href="{{ url_for('users.index') }}">Users</a></li>
+                <li class="{{ html.active(url_for('rooms.index')) }}"><a href="{{ url_for('rooms.index') }}">Rooms</a></li>
+                <li class="{{ html.active(url_for('contacts.index')) }}"><a href="{{ url_for('contacts.index') }}">Contacts</a></li>
+                <li class="{{ html.active(url_for('caterers.index')) }}"><a href="{{ url_for('caterers.index') }}">Caterers</a></li>
+                <li class="{{ html.active(url_for('users.index')) }}"><a href="{{ url_for('users.index') }}">Users</a></li>
               </ul>
             </li>
             {% endif %}
-            <li>{{ html.button('Logout', 'post', ['test'], url_for('main.logout')) }}</li>
+            <li class="{{ html.active(url_for('main.logout')) }}">{{ html.button('Logout', 'post', ['test'], url_for('main.logout')) }}</li>
           </ul>
           {% else %}
           <ul class="nav navbar-nav navbar-right">
-            <li>{{ html.button("Login", "link", [], url_for('main.login')) }}</li>
-            <li>{{ html.button("Register", "link", [], url_for('main.register')) }}</li>
+            <li class="{{ html.active(url_for('main.login')) }}">{{ html.button("Login", "link", [], url_for('main.login')) }}</li>
+            <li class="{{ html.active(url_for('main.register')) }}">{{ html.button("Register", "link", [], url_for('main.register')) }}</li>
           </ul>
           {% endif %}
         </div>

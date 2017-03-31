@@ -1,7 +1,8 @@
 from datetime import datetime, date, timedelta
-from flask import Blueprint, render_template, redirect, url_for, session, request, g
+from flask import Blueprint, render_template, redirect, url_for, session, request, g, flash
 from app.validation import validate, datetimeFormat
-from app.models import Caterer, Dish, Room, Organization, Contact, Attachment
+from app.models import *
+from peewee import JOIN, prefetch
 
 blueprint = Blueprint('event', __name__)
 
@@ -38,14 +39,26 @@ class TenativeBooking():
         for k in kwargs:
             session[prefix + k] = kwargs[k]
 
+    def cleanSession(self, prefix=""):
+        session.pop(prefix + "start")
+        session.pop(prefix + "finish")
+        session.pop(prefix + "capacity")
+        session.pop(prefix + "roomIds")
+        session.pop(prefix + "food")
+        session.pop(prefix + "name")
+        session.pop(prefix + "discountPercent")
+        session.pop(prefix + "discountAmount")
+        session.pop(prefix + "contactId")
+        session.pop(prefix + "organizationId")
+
     def roomPrice(self):
         ret = 0
         for r in Room.select().where(Room.id << self.roomIds):
             ret += r.price
-        return round(float(ret), 2)
+        return float(ret)
 
     def duration(self):
-        return round(float((self.finish - self.start).total_seconds()/60/60), 2)
+        return float((self.finish - self.start).total_seconds()/60/60)
 
     def rooms(self):
         return Room.select().where(Room.id << self.roomIds)
@@ -54,7 +67,8 @@ class TenativeBooking():
         return Contact.select().where(Contact.id == self.contactId).get()
 
     def organization(self):
-        return Organization.select().where(Organization.id == self.organizationId).get()
+        if self.organizationId != 0: # will return none if no return value
+            return Organization.select().where(Organization.id == self.organizationId).get()
 
     def getFood(self):
         foodIds = []
@@ -64,8 +78,7 @@ class TenativeBooking():
         ret = []
         for food in Dish.select().where(Dish.id << foodIds):
             ret.append({'name': food.name, 'rate': food.price, 'quantity': self.food[str(food.id)],
-                        'total': round(self.food[str(food.id)] * food.price, 2)})
-        print(ret)
+                        'total': self.food[str(food.id)] * food.price})
         return ret
     
     def foodTotal(self):
@@ -86,7 +99,7 @@ class TenativeBooking():
         return ret
 
     def total(self):
-        return round(self.subTotal() - self.getDiscount(), 2)
+        return self.subTotal() - self.getDiscount()
 
     def getDiscount(self):
         return ((self.subTotal() - self.discountAmount) * self.discountPercent/100) + self.discountAmount
@@ -118,7 +131,8 @@ def selectRoom():
                       'optionId': len(rooms) + 1, 'total': (float(room.price) * t.duration())})
 
     # finalize
-    return render_template('event/room.html', rooms=rooms, start=t.start, finish=t.finish, capacity=t.capacity)
+    return render_template('event/room.html', rooms=rooms, start=t.start, finish=t.finish, capacity=t.capacity,
+                           selectedIds=t.roomIds if len(t.roomIds) > 0 else None)
 
 
 @blueprint.route('/book/room', methods=['POST'])
@@ -133,8 +147,9 @@ def selectFood():
     t = TenativeBooking.loadFromSession()
     hours = t.duration()
     price = t.roomPrice()
-    dishes = Dish.select().join(Caterer)
-    print(t.food)
+    d = Dish.select()
+    c = Caterer.select()
+    dishes = prefetch(d, c)
     return render_template('event/caterer.html', dishes=dishes, roomHours=hours, roomPrice=price,
                            roomTotal=(hours * price), rooms=t.rooms(), food=t.food)
 
@@ -153,9 +168,21 @@ def processFoodSelection():
 @blueprint.route('/book/finalize')
 def finalizeBooking():
     orgs = Organization.select()
-    contacts = Contact.select().join(Organization)
+    contacts = Contact.select()
     t = TenativeBooking.loadFromSession()
-    return render_template('event/finalize.html', orgs=orgs, contacts=contacts, booking=t)
+    json = {}
+    for c in contacts:
+        oid = c.organization_id if c.organization_id is not None else 0
+        if oid not in json:
+            json[oid] = {}
+        json[oid][c.id] = c.name
+    existing = True if 'existing' in g.data and g.data['existing'] != '' else False
+    newContact = True if 'newContact' in g.data and g.data['newContact'] != '' else False
+    newOrg = True if 'newOrg' in g.data and g.data['newOrg'] != '' else False
+    if not existing and not newContact and not newOrg:
+        existing = True
+    return render_template('event/finalize.html', orgs=orgs, contacts=contacts, booking=t, json=json,
+                           existing=existing, newContact=newContact, newOrg=newOrg)
 
 
 @blueprint.route('/book/finalize', methods=['POST'])
@@ -184,7 +211,6 @@ def processFinalizeBooking(eventName, discountPercent, discountAmount, organizat
                 errors['OrganizationName'] = ['Required']
             if organizationAddress is None or organizationAddress == "":
                 errors['OrganizationAddress'] = ['Required']
-    print(errors)
     if len(errors) > 0:
         session["validationErrors"] = errors
         session["validationData"] = g.data
@@ -216,4 +242,22 @@ def confirmBooking():
 
 @blueprint.route('/book/confirm', methods=['POST'])
 def processConfirmBooking():
+    try:
+        t = TenativeBooking.loadFromSession()
+        b = Booking(contact=t.contact(), creator=g.User, discountAmount=t.discountAmount,
+                    discountPercent=t.discountPercent, startTime=t.start, endTime=t.finish,
+                    eventName=t.name, finalPrice=t.total(), isCanceled=False)
+        b.save()
+        rooms = t.rooms()
+        for room in rooms:
+            br = BookingRoom(booking=b, room=room)
+            br.save()
+        for f in t.food:
+            if t.food[f] > 0:
+                Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=t.food[f]).save()
+        flash("Created event: '%s'" % t.name, 'success')
+        t.cleanSession()
+    except:
+        flash("Error Creating Booking", "error")
     return redirect(url_for('main.index'))
+

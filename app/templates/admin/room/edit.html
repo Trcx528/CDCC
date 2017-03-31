@@ -9,7 +9,7 @@
         {{ html.csrf_token() }}
         {{ html.form_group("text", "Name", placeholder="Room Name", value=room.name) }}
         {{ html.form_group("text", "Capacity", placeholder="100", value=room.capacity) }}
-        {{ html.form_group("text", "Price", placeholder="$99.95", value="$%0.2f" % room.price)}}
+        {{ html.form_group("text", "Rate", placeholder="$99.95", value="$%0.2f" % room.price)}}
         {{ html.form_group("multiselect", "Adjacent Rooms", options=html.to_keyval(rooms), value=room.adjacentRoomIds()) }}
         <div class="form-group">
           <div class="col-lg-10 col-lg-offset-2">

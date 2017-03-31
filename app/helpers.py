@@ -1,6 +1,10 @@
 import string
 import random
-from flask import Markup, g, session
+from flask import Markup, g, session, request
+
+datetimeFormat = "%m/%d/%Y %H:%M %p"
+dateFormat = "%m/%d/%Y"
+timeFormat = "%H:%M %p"
 
 def value_for(name):
     if hasattr(g, "data"):
@@ -14,7 +18,7 @@ def hidden(name, value):
     return Markup(ret)
 
 def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[],
-               innerDiv=["col-sm-10"]):
+               innerDiv=["col-sm-10"], min=None, max=None):
     """
     ftype: [text|password|select|multiselect|textarea|radio|number]
     label: visible name
@@ -50,6 +54,10 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
             ret += ' value="' + str(value) + '"'
         if placeholder is not None:
             ret += ' placeholder="' + placeholder + '"'
+        if min is not None:
+            ret += ' min="' + str(min) + '"'
+        if max is not None:
+            ret += ' max="' + str(max) + '"'
         ret += '>'
     elif ftype == "select" or ftype == "multiselect":
         ret += '<select class="form-control" name="' + inputName + '" id="' + id + '"'
@@ -118,6 +126,9 @@ def button(text, ftype="submit", cls=["btn", "btn-default"], destination=None, u
         ret = '<button type="' + ftype + '" class="' + classes + '">' + text + '</button>'
     return Markup(ret)
 
+def active(url):
+    if request.path == url:
+        return "active"
 
 def csrf_token():
     if 'csrf_token' not in session:
@@ -136,3 +147,15 @@ def to_list(ilist, value='id', base=[]):
     for i in ilist:
         base.append(i.__getattribute__(value))
     return base
+
+def format_currency(value):
+    return "${:,.2f}".format(value)
+
+def format_date(value):
+    return value.strftime(dateFormat)
+
+def format_time(value):
+    return value.strftime(timeFormat)
+
+def format_datetime(value):
+    return value.strftime(datetimeFormat)

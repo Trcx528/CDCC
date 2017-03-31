@@ -35,7 +35,7 @@
                         {% for dish in caterer.dishes %}
                             <tr>
                                 <td>{{ dish.name }}</td>
-                                <td>${{ dish.price|round(2) }}</td>
+                                <td>{{ dish.price|currency }}</td>
                                 <td>
                                     <span class="pull-right">
                                         {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('dishes.edit', id=dish.id))}}

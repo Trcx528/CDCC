@@ -4,8 +4,9 @@ from functools import wraps
 from flask import request, g, redirect, session, abort
 from app.models import User
 
-datetimeFormat="%m/%d/%Y %H:%M %p"
-dateFormat="%m/%d/%Y"
+datetimeFormat = "%m/%d/%Y %H:%M %p"
+dateFormat = "%m/%d/%Y"
+timeFormat = "%H:%M %p"
 
 _validators = {}
 
@@ -207,7 +208,6 @@ def valUserPassword(value, fieldName=None, userid=None, admin=False, **commonArg
 def valDate(value, fieldName=None, before=None, **commonArgs):
     errors = commonValidation(value, fieldName, **commonArgs)
     try:
-        print(value)
         value = datetime.strptime(value, dateFormat)
     except ValueError:
         errors.append("Invalid Format")

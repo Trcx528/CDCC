@@ -32,7 +32,7 @@ def processCreate(name, address, contacts):
 
 @blueprint.route('/admin/organizations/<int:id>')
 def edit(id):
-    org = Organization.select().where(Organization.id == id).join(Contact, JOIN.LEFT_OUTER).get()
+    org = Organization.select().where(Organization.id == id).get()
     return render_template('admin/organizations/edit.html', org=org,
                            contacts=Contact.select().where((Contact.organization == None) |
                                                            (Contact.organization == org)))
@@ -41,7 +41,7 @@ def edit(id):
 @blueprint.route('/admin/organizations/<int:id>', methods=['POST'])
 @validate(Name="str|required", Address="str|required", Contacts="multiselect")
 def processEdit(id, name, address, contacts):
-    org = Organization.select().where(Organization.id == id).join(Contact, JOIN.LEFT_OUTER).get()
+    org = Organization.select().where(Organization.id == id).get()
     org.name = name
     org.address = address
     org.save()

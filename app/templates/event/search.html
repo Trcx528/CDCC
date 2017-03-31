@@ -3,10 +3,9 @@
 {% block content %}
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Find a space</h2>
+    <div class="progress"><div class="progress-bar" style="width: 0%;"></div></div>
     <form class="form-horizontal" method="post">
-        <legend>
-            Find a space
-        </legend>
         {{ html.csrf_token() }}
         {{ html.form_group("text", "Capacity", placeholder="50", value=capacity) }}
         {{ html.form_group("text", "Start", value=start)}}

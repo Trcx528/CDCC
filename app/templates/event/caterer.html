@@ -4,6 +4,7 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Select Caterering</h2>
+    <div class="progress"><div class="progress-bar" style="width: 50%;"></div></div>
     <form method="POST">
       {{html.csrf_token()}}
       <table class="table table-hover table-condensed table-responsive table-striped">
@@ -22,7 +23,7 @@
             <td>{{dish.name}}</td>
             <td>{{dish.caterer.name}}</td>
             <td><input type="number" min="0" class="update-trigger" name="dish_{{dish.id}}" value="{{ food[dish.id|string] if dish.id|string in food else 0 }}" data-price="{{dish.price|round(2)}}"/></td>
-            <td>${{dish.price|round(2)}}</td>
+            <td>{{dish.price|currency}}</td>
             <td><p id="dish_{{dish.id}}Total" class="pull-right">$0</p></td>
           </tr>
           {% endfor %}
@@ -33,16 +34,16 @@
           {% for room in rooms %}
           <tr>
             <td colspan="2">{{room.name}}</td>
-            <td>{{roomHours|round(2)}} Hours</td>
-            <td>${{room.price|round(2)}}/hour</td>
-            <td><span class="room-total pull-right" data-rate="{{room.price|round(2)}}" data-hours="{{roomHours|round(2)}}">$</span></td>
+            <td>{{roomHours|currency}} Hours</td>
+            <td>{{room.price|currency}}/hour</td>
+            <td><span class="room-total pull-right" data-rate="{{room.price|round(2)}}" data-hours="{{roomHours|round(2)}}"></span></td>
           </tr>
           {% endfor %}
           <tr class="active">
             <th colspan="2">Room Total</th>
-            <th>{{roomHours|round(2)}} Hours</th>
-            <th>${{roomPrice|round(2)}}/hour</th>
-            <th><span id="roomTotal" data-total="{{roomTotal|round(2)}}" class="pull-right">${{roomTotal|round(2)}}</span></th>
+            <th>{{roomHours|currency}} Hours</th>
+            <th>{{roomPrice|currency}}/hour</th>
+            <th><span id="roomTotal" data-total="{{roomTotal|round(2)}}" class="pull-right">{{roomTotal|currency}}</span></th>
           </tr>
         </tbody>
         <tfoot>
@@ -52,6 +53,7 @@
           </tr>
         </tfoot>
       </table>
+      {{ html.button('Back', 'link', ['btn', 'btn-default'], url_for('event.selectRoom')) }}
       <button type="submit" class="btn btn-primary pull-right">Submit</button>
     </form>
   </div>
@@ -76,7 +78,7 @@
   }
   updateTotals();
   $('.room-total').each(function(e) {
-    $(this).html("$" + ($(this).data('rate') * $(this).data('hours') ));
+    $(this).html("$" + ($(this).data('rate') * $(this).data('hours') ).toFixed(2) );
   });
 </script>
 {% endblock %}
