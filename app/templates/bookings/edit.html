@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Editing {{booking.eventName}}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Editing Booking</h2>
+    <form class="form-horizontal" method="POST">
+        {{ html.csrf_token()}}
+        {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.eventName) }}
+        {{ html.form_group("number", "Discount Percent", placeholder="10%", value=booking.discountPercent, min=0, max=100) }}
+        {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount, min=0) }}
+        {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"}), value=booking.contact) }}
+        {{ html.form_group("select", "Contact", options=html.to_keyval(contacts), value=booking.contact_id) }}
+        <hr>
+        <table class="table table-condensed table-hover table-responsive table-striped">
+            <thead>
+                <tr>
+
+                </tr>
+            </thead>
+        </table> 
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    var orgData = {{ json|tojson }};
+</script>
+{% endblock %}

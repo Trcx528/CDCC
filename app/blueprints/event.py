@@ -243,6 +243,8 @@ def confirmBooking():
 @blueprint.route('/book/confirm', methods=['POST'])
 def processConfirmBooking():
     try:
+        # TODO group inserts together and not individually
+        # http://docs.peewee-orm.com/en/latest/peewee/querying.html#bulk-inserts
         t = TenativeBooking.loadFromSession()
         b = Booking(contact=t.contact(), creator=g.User, discountAmount=t.discountAmount,
                     discountPercent=t.discountPercent, startTime=t.start, endTime=t.finish,

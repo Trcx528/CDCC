@@ -67,7 +67,7 @@ class Room(db.Model):
         oroom.comboRooms = ",".join(orids)
         self.save()
         oroom.save()
-    
+
     def getTotal(self, duration):
         return duration * float(self.price)
 

@@ -18,10 +18,16 @@
             {% for booking in bookings %}
                 <tr>
                     <td>{{booking.eventName}}</td>
-                    <td>{{booking.startTime|datetime}} - {{booking.endTime|datetime}}</td>
+                    <td>
+                        {% if booking.startTime.date() == booking.endTime.date() %}
+                            {{booking.startTime.date()|date}} {{booking.startTime.time()|time}} - {{booking.endTime.time()|time}}
+                        {% else %}
+                            {{booking.startTime|datetime}} - {{booking.endTime|datetime}}
+                        {% endif %}
+                    </td>
                     <td>
                         {% for br in booking.bookingroom_set_prefetch %}
-                            {{br.room.name}}, 
+                            {{br.room.name}}{{ ', ' if booking.bookingroom_set_prefetch[booking.bookingroom_set_prefetch|length - 1] != br else ''}}
                         {% endfor %}
                     </td>
                     <td>{{booking.finalPrice|currency}}</td>

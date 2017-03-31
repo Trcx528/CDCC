@@ -16,3 +16,4 @@
 * progress bar through booking process
 * determine open hours and do not charge for hours when closed
 * format start and end times nicely when on same day
+* optomize caterering admin with prefetch (avoid N+1 queries)
