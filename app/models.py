@@ -99,6 +99,12 @@ class Booking(db.Model):
     isCanceled = BooleanField()
     startTime = DateTimeField()
 
+    def foodList(self):
+        ret = {}
+        for o in self.orders_prefetch:
+            ret[o.dish_id] = o.quantity
+        return ret
+
 
 class Attachment(db.Model):
     booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='attachments')

@@ -26,7 +26,7 @@ def edit(id):
         if oid not in json:
             json[oid] = {}
         json[oid][c.id] = c.name
-    return render_template('bookings/edit.html', booking=booking, dishes=dishes, orgs=orgs, contacts=cons, json=json)
+    return render_template('bookings/edit.html', booking=booking[0], dishes=dishes, orgs=orgs, contacts=cons, json=json)
 
 
 @blueprint.route('/bookings/<int:id>', methods=['POST'])

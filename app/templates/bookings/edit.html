@@ -9,15 +9,34 @@
         {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.eventName) }}
         {{ html.form_group("number", "Discount Percent", placeholder="10%", value=booking.discountPercent, min=0, max=100) }}
         {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount, min=0) }}
-        {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"}), value=booking.contact) }}
+        {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"}), value=booking.contact.organization_id) }}
         {{ html.form_group("select", "Contact", options=html.to_keyval(contacts), value=booking.contact_id) }}
         <hr>
         <table class="table table-condensed table-hover table-responsive table-striped">
             <thead>
                 <tr>
-
+                    <th>Name</th>
+                    <th>Caterer</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for dish in dishes %}
+                <tr>
+                    <td>{{dish.name}}</td>
+                    <td>{{dish.caterer.name}}</td>
+                    <td><input type="number" min="0" class="dish-input" name="{{dish.id}}_dish" value="{{ booking.foodList()[dish.id] if dish.id in booking.foodList() else 0  }}" data-price="{{dish.price|round(2)}}"></td>
+                    <td>{{dish.price|currency}}</td>
+                    <td><span id="{{dish.id}}_total" class="pull-right">$0</span></td>
+                </tr>
+                {% endfor %}
+                <tr class="active">
+                    <td colspan="4">Caterering Total</td>
+                    <td><span id="catereringTotal" class="pull-right">$0</span></td>
+                </tr>
+            </tbody>
         </table> 
     </form>
   </div>
@@ -26,5 +45,42 @@
 {% block script %}
 <script>
     var orgData = {{ json|tojson }};
+    function updateCaterering() {
+        var cTotal = 0;
+        $('.dish-input').each(function(){
+            var total = (this.dataset.price * this.value);
+            cTotal += total;
+            $('#' + this.name.replace('_dish', '') + '_total').html('$' + total.toFixed(2));
+        });
+        $('#catereringTotal').html('$' + cTotal);
+    }
+    function filterContacts() {
+        var orgId = $("#Organization").val();
+        var flag = false;
+        $('#Contact > option').each(function(){
+            var data = orgData[orgId];
+            if (this.value in data) {
+                $(this).show();
+                $(this).removeAttr('disabled');
+                $(this)
+                if (!flag){
+                    flag=true;
+                    if (!($('#Contact').val() in data)) {
+                        $('#Contact').val(this.value);
+                    }
+                }
+            } else {
+                $(this).hide();
+                //set the disabled attr as a fall back
+                $(this).attr('disabled','disabled');
+            }
+        })
+    }
+    filterContacts();
+    updateCaterering();
+
+
+    $('.dish-input').on('change', updateCaterering);
+    $('#Organization').on('change', filterContacts);
 </script>
 {% endblock %}
