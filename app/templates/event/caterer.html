@@ -22,7 +22,7 @@
           <tr>
             <td>{{dish.name}}</td>
             <td>{{dish.caterer.name}}</td>
-            <td><input type="number" min="0" class="update-trigger" name="dish_{{dish.id}}" value="{{ food[dish.id|string] if dish.id|string in food else 0 }}" data-price="{{dish.price|round(2)}}"/></td>
+            <td><input type="number" min="0" class="update-trigger" name="dish_{{dish.id}}" value="{{ booking.food[dish.id|string] if dish.id|string in booking.food else 0 }}" data-price="{{dish.price|round(2)}}"/></td>
             <td>{{dish.price|currency}}</td>
             <td><p id="dish_{{dish.id}}Total" class="pull-right">$0</p></td>
           </tr>
@@ -31,19 +31,19 @@
             <th colspan="4">Caterering Total</th>
             <th><span id="catereringTotal" class="pull-right">$0</span></th>
           </tr>
-          {% for room in rooms %}
+          {% for room in booking.rooms() %}
           <tr>
             <td colspan="2">{{room.name}}</td>
-            <td>{{roomHours|currency}} Hours</td>
+            <td>{{booking.duration()|round(2)}} Hours</td>
             <td>{{room.price|currency}}/hour</td>
-            <td><span class="room-total pull-right" data-rate="{{room.price|round(2)}}" data-hours="{{roomHours|round(2)}}"></span></td>
+            <td><span class="room-total pull-right" data-rate="{{room.price|round(2)}}" data-hours="{{booking.duration()|round(2)}}">{{room.getTotal(booking.duration())|currency}}</span></td>
           </tr>
           {% endfor %}
           <tr class="active">
             <th colspan="2">Room Total</th>
-            <th>{{roomHours|currency}} Hours</th>
-            <th>{{roomPrice|currency}}/hour</th>
-            <th><span id="roomTotal" data-total="{{roomTotal|round(2)}}" class="pull-right">{{roomTotal|currency}}</span></th>
+            <th>{{booking.duration()|round(2)}} Hours</th>
+            <th>{{booking.roomCombo().rate|currency}}/hour</th>
+            <th><span id="roomTotal" data-total="{{booking.roomTotal()|round(2)}}" class="pull-right">{{booking.roomTotal()|currency}}</span></th>
           </tr>
         </tbody>
         <tfoot>
@@ -61,6 +61,9 @@
 {% endblock %}
 {% block script %}
 <script>
+  function currency(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
   var cateringTotal = 0;
   $('.update-trigger').on('input propertychange paste', function(e){
     updateTotals();
@@ -71,14 +74,11 @@
     $('.update-trigger').each(function(e){
       var total = this.dataset['price'] * this.value;
       cateringTotal += total;
-      $("#"+this.name+"Total").html("$" + total.toFixed(2));
+      $("#"+this.name+"Total").html("$" + currency(total.toFixed(2)));
     })
     $("#catereringTotal").html("$" + cateringTotal.toFixed(2));
-    $("#finalTotal").html('$' + (cateringTotal + $('#roomTotal').data('total')).toFixed(2));
+    $("#finalTotal").html('$' + currency((cateringTotal + $('#roomTotal').data('total')).toFixed(2)));
   }
   updateTotals();
-  $('.room-total').each(function(e) {
-    $(this).html("$" + ($(this).data('rate') * $(this).data('hours') ).toFixed(2) );
-  });
 </script>
 {% endblock %}

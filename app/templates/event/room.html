@@ -26,17 +26,17 @@
       </thead>
       <tbody>
         {% for room in rooms %}
-        <tr class="{{ 'info' if selectedIds == room['ids'] else '' }}">
-          <td>{{room['name']}}</td>
-          <td>{{room['capacity']}}</td>
-          <td>{{room['rate']|currency}} /hour</td>
-          <td>{{(room['rate']/room['capacity'])|currency}}</td>
-          <td>{{room['total']|currency}}</td>
+        <tr class="{{ 'info' if comboId == room.id else '' }}">
+          <td>{{room.name}}</td>
+          <td>{{room.capacity}}</td>
+          <td>{{room.rate|currency}} /hour</td>
+          <td>{{(room.rate/room.capacity)|currency}}</td>
+          <td>{{room.price|currency}}</td>
           <td>
-            <a href="{{url_for('event.processSelectRoom')}}" class="btn btn-xs btn-primary pull-right" onclick="event.preventDefault();$('#frm{{ room['optionId'] }}').submit()">Select</a>
-            <form method="POST" id="frm{{ room['optionId'] }}" >
+            <a href="{{url_for('event.processSelectRoom')}}" class="btn btn-xs btn-primary pull-right" onclick="event.preventDefault();$('#frm{{ room.id }}').submit()">Select</a>
+            <form method="POST" id="frm{{ room.id }}" >
               {{ html.csrf_token() }}
-              {{ html.hidden('roomIds', room['ids']) }}
+              {{ html.hidden('roomIds', room.roomIds) }}
             </form>
           </td>
         </tr>

@@ -3,108 +3,9 @@ from flask import Blueprint, render_template, redirect, url_for, session, reques
 from app.validation import validate, datetimeFormat
 from app.models import *
 from peewee import JOIN, prefetch
+from app.logic import TenativeBooking, RoomCombo
 
 blueprint = Blueprint('event', __name__)
-
-class TenativeBooking():
-    start = None
-    finish = None
-    capacity = None
-    roomIds = None
-    food = None
-    name = None
-    discountPercent = None
-    discountAmount = None
-    contactId = None
-    organizationId = None
-
-    @classmethod
-    def loadFromSession(cls, prefix=""):
-        s = cls()
-        today = datetime.fromordinal(date.today().toordinal())
-        s.start = session[prefix + 'start'] if prefix + 'start' in session else today + timedelta(days=1, hours=8)
-        s.finish = session[prefix + 'finish'] if prefix + 'finish' in session else today + timedelta(days=1, hours=12)
-        s.capacity = session[prefix + 'capacity'] if prefix + 'capacity' in session else 25
-        s.roomIds = session[prefix + 'roomIds'] if prefix + 'roomIds' in session else []
-        s.food = session[prefix + 'food'] if prefix + 'food' in session else {}
-        s.name = session[prefix + 'name'] if prefix + 'name' in session else ""
-        s.discountPercent = session[prefix + 'discountPercent'] if prefix + 'discountPercent' in session else 0.0
-        s.discountAmount = session[prefix + 'discountAmount'] if prefix + 'discountAmount' in session else 0.0
-        s.contactId = session[prefix + 'contactId'] if prefix + 'contactId' in session else 0
-        s.organizationId = session[prefix + 'organizationId'] if prefix + 'organizationId' in session else 0
-        return s
-
-    @classmethod
-    def saveToSession(cls, prefix="", **kwargs):
-        for k in kwargs:
-            session[prefix + k] = kwargs[k]
-
-    def cleanSession(self, prefix=""):
-        session.pop(prefix + "start")
-        session.pop(prefix + "finish")
-        session.pop(prefix + "capacity")
-        session.pop(prefix + "roomIds")
-        session.pop(prefix + "food")
-        session.pop(prefix + "name")
-        session.pop(prefix + "discountPercent")
-        session.pop(prefix + "discountAmount")
-        session.pop(prefix + "contactId")
-        session.pop(prefix + "organizationId")
-
-    def roomPrice(self):
-        ret = 0
-        for r in Room.select().where(Room.id << self.roomIds):
-            ret += r.price
-        return float(ret)
-
-    def duration(self):
-        return float((self.finish - self.start).total_seconds()/60/60)
-
-    def rooms(self):
-        return Room.select().where(Room.id << self.roomIds)
-
-    def contact(self):
-        return Contact.select().where(Contact.id == self.contactId).get()
-
-    def organization(self):
-        if self.organizationId != 0: # will return none if no return value
-            return Organization.select().where(Organization.id == self.organizationId).get()
-
-    def getFood(self):
-        foodIds = []
-        for f in self.food:
-            if self.food[f] > 0:
-                foodIds.append(int(f))
-        ret = []
-        for food in Dish.select().where(Dish.id << foodIds):
-            ret.append({'name': food.name, 'rate': food.price, 'quantity': self.food[str(food.id)],
-                        'total': self.food[str(food.id)] * food.price})
-        return ret
-    
-    def foodTotal(self):
-        ret = 0
-        for f in self.getFood():
-            ret += float(f['total'])
-        return ret
-
-    def roomTotal(self):
-        ret = 0
-        for room in self.rooms():
-            ret += float(room.getTotal(self.duration()))
-        return ret
-
-    def subTotal(self):
-        ret = self.foodTotal()
-        ret += self.roomTotal()
-        return ret
-
-    def total(self):
-        return self.subTotal() - self.getDiscount()
-
-    def getDiscount(self):
-        return ((self.subTotal() - self.discountAmount) * self.discountPercent/100) + self.discountAmount
-
-
 
 @blueprint.route('/book/search')
 def plan():
@@ -125,24 +26,11 @@ def selectRoom():
     #rooms = Room.select().join(busyRooms, JOIN.LEFT_OUTER, on=(Room.id == ))
     # TODO Make logic to not show already booked rooms
     t = TenativeBooking.loadFromSession()
-    rooms = []
-    openRooms = Room.findRooms(t.start, t.finish, t.capacity)
-    for key in openRooms:
-        id = []
-        rate = 0
-        capacity = 0
-        name = []
-        for room in openRooms[key]:
-            id.append(str(room.id))
-            rate += room.price
-            capacity += room.capacity
-            name.append(room.name)
-        rooms.append({'ids': ",".join(id), 'rate': rate, 'capacity': capacity, 'name': ", ".join(name),
-                      'optionId': len(rooms) + 1, 'total': (float(rate) * t.duration())})
-
-    # finalize
+    openRooms = Room.openRooms(t.start, t.finish)
+    rooms = RoomCombo.getCombos(openRooms, t.duration(), t.capacity)
+    rooms.sort(key=RoomCombo.rateSort)
     return render_template('event/room.html', rooms=rooms, start=t.start, finish=t.finish, capacity=t.capacity,
-                           selectedIds=t.roomIds if len(t.roomIds) > 0 else None)
+                           comboId=t.roomCombo().id if len(t.roomIds) > 0 else None)
 
 
 @blueprint.route('/book/room', methods=['POST'])
@@ -155,13 +43,10 @@ def processSelectRoom(roomIds):
 @blueprint.route('/book/caterers')
 def selectFood():
     t = TenativeBooking.loadFromSession()
-    hours = t.duration()
-    price = t.roomPrice()
     d = Dish.select()
     c = Caterer.select()
     dishes = prefetch(d, c)
-    return render_template('event/caterer.html', dishes=dishes, roomHours=hours, roomPrice=price,
-                           roomTotal=(hours * price), rooms=t.rooms(), food=t.food)
+    return render_template('event/caterer.html', dishes=dishes, booking=t)
 
 
 @blueprint.route('/book/caterers', methods=['POST'])

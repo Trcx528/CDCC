@@ -248,7 +248,7 @@ def valDateTime(value, fieldName=None, before=None, **commonArgs):
 def valList(value, fieldName=None, type=None, **commonArgs):
     errors = commonValidation(value, fieldName, **commonArgs)
     if type == 'int':
-        value = value.replace('[', '').replace(']', '').replace(' ', '').split(',')
+        value = value.replace('[', '').replace(']', '').replace(' ', '').replace("'", '').split(',')
         tmp = []
         for val in value:
             tmp.append(int(val))

@@ -17,3 +17,5 @@
 * determine open hours and do not charge for hours when closed
 * format start and end times nicely when on same day
 * optomize caterering admin with prefetch (avoid N+1 queries)
+* additional fields: isDeleted (all tables), room.dimensions
+* validate haven't already been reserved when completeing booking 
