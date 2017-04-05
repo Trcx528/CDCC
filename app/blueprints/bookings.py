@@ -26,7 +26,23 @@ def edit(id):
         if oid not in json:
             json[oid] = {}
         json[oid][c.id] = c.name
-    return render_template('bookings/edit.html', booking=booking[0], dishes=dishes, orgs=orgs, contacts=cons, json=json)
+    openRooms = Room.findRooms(booking[0].startTime, booking[0].endTime, None, [booking[0].selectedRooms()])
+    rooms = {}
+    for rs in openRooms:
+        val = []
+        price = 0
+        cap = 0
+        for r in openRooms[rs]:
+            cap += r.capacity
+            price += r.price
+            val.append(r.name)
+        rooms[rs] = {'name': ", ".join(val), 'capacity': cap, 'rate': price}
+        selectedRoomId = []
+        for id in booking[0].selectedRoomIds():
+            selectedRoomId.append(str(id))
+        selectedRoomId = "_".join(selectedRoomId)
+    return render_template('bookings/edit.html', booking=booking[0], dishes=dishes, orgs=orgs, contacts=cons,
+                           json=json, rooms=rooms, selectedRoomId=selectedRoomId)
 
 
 @blueprint.route('/bookings/<int:id>', methods=['POST'])

@@ -126,9 +126,19 @@ def selectRoom():
     # TODO Make logic to not show already booked rooms
     t = TenativeBooking.loadFromSession()
     rooms = []
-    for room in Room.select():
-        rooms.append({'ids': [room.id], 'rate': room.price, 'capacity': room.capacity, 'name': room.name,
-                      'optionId': len(rooms) + 1, 'total': (float(room.price) * t.duration())})
+    openRooms = Room.findRooms(t.start, t.finish, t.capacity)
+    for key in openRooms:
+        id = []
+        rate = 0
+        capacity = 0
+        name = []
+        for room in openRooms[key]:
+            id.append(str(room.id))
+            rate += room.price
+            capacity += room.capacity
+            name.append(room.name)
+        rooms.append({'ids': ",".join(id), 'rate': rate, 'capacity': capacity, 'name': ", ".join(name),
+                      'optionId': len(rooms) + 1, 'total': (float(rate) * t.duration())})
 
     # finalize
     return render_template('event/room.html', rooms=rooms, start=t.start, finish=t.finish, capacity=t.capacity,

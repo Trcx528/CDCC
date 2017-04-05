@@ -74,6 +74,33 @@ class Room(db.Model):
     def perPersonRate(self):
         return self.price/self.capacity
 
+    @classmethod
+    def findRooms(cls, start, end, capacity=None, include=None):
+        """Returns rooms that are free for a time period"""
+        ret = {}
+        if include is not None:
+            for rooms in include:
+                id = []
+                for room in rooms:
+                    id.append(str(room.id))
+                ret["_".join(id)] = rooms
+        bookedRooms = Room.select(Room.id).join(BookingRoom).join(Booking).where(
+            (Booking.startTime < start) & (Booking.endTime > start) &
+            (Booking.startTime < end) & (Booking.endTime > end))
+        for i in bookedRooms:
+            print ("Filtering out", i)
+        freeRooms = Room.select().where(~(Room.id << bookedRooms))
+        for room in freeRooms:
+            ret[room.id] = [room]
+            adjIds = room.adjacentRoomIds()
+            for id in adjIds:
+                if int(id) in ret:
+                    ret[str(room.id) + "_" + str(id)] = [room, ret[int(id)][0]]
+        #TODO Filter out rooms that don't meet capacity requirement
+        print(ret)
+        return ret
+
+
 class Organization(db.Model):
     address = CharField()
     name = CharField()
@@ -101,8 +128,32 @@ class Booking(db.Model):
 
     def foodList(self):
         ret = {}
-        for o in self.orders_prefetch:
-            ret[o.dish_id] = o.quantity
+        if hasattr(self, 'orders_prefetch'):
+            for o in self.orders_prefetch:
+                ret[o.dish_id] = o.quantity
+        else:
+            for o in self.orders:
+                ret[o.dish_id] = o.quantity
+        return ret
+
+    def selectedRooms(self):
+        ret = []
+        if hasattr(self, 'bookingroom_set_prefetch'):
+            for br in self.bookingroom_set_prefetch:
+                ret.append(br.room)
+        else:
+            for br in self.bookingroom_set:
+                ret.append(br.room)
+        return ret
+
+    def selectedRoomIds(self):
+        ret = []
+        if hasattr(self, 'bookingroom_set_prefetch'):
+            for br in self.bookingroom_set_prefetch:
+                ret.append(br.room_id)
+        else:
+            for br in self.bookingroom_set:
+                ret.append(br.room_id)
         return ret
 
 
