@@ -6,10 +6,10 @@
     <h2>Select a room</h2>
     <div class="progress"><div class="progress-bar" style="width: 25%;"></div></div>
     <p>
-      {% if start.date() == finish.date() %}
-        Looking for rooms to host an event on {{start.date()|date}} from {{start.time()|time}} to {{finish.time()|time}}.
+      {% if booking.start.date() == booking.finish.date() %}
+        Looking for rooms to host an event on {{booking.start.date()|date}} from {{booking.start.time()|time}} to {{booking.finish.time()|time}} for {{booking.capacity}} people.
       {% else %}
-        Looking for rooms to host an event from {{start|datetime}} to {{finish|datetime}}.
+        Looking for rooms to host an event from {{booking.start|datetime}} to {{booking.finish|datetime}} for {{booking.capacity}} people.
       {% endif %}
       {{ html.button("Back", "link", ['btn', 'btn-default', 'pull-right', 'btn-xs'], url_for('event.plan')) }}
     </p>

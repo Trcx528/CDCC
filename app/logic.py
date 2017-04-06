@@ -1,6 +1,6 @@
 from datetime import datetime, date, timedelta
 from flask import session
-from app.models import Room, Contact, Organization, Dish
+from app.models import *
 
 class TenativeBooking():
     start = None
@@ -47,10 +47,6 @@ class TenativeBooking():
         session.pop(prefix + "contactId")
         session.pop(prefix + "organizationId")
 
-    def roomCombo(self):
-        if not hasattr(self, 'roomComboPre'):
-            self.roomComboPre = RoomCombo(self.rooms(), self.duration())
-        return self.roomComboPre
 
     def duration(self):
         return float((self.finish - self.start).total_seconds()/60/60)
@@ -65,7 +61,9 @@ class TenativeBooking():
 
     def organization(self):
         if self.organizationId != 0: # will return none if no return value
-            return Organization.select().where(Organization.id == self.organizationId).get()
+            if not hasattr(self, 'orgcache'):
+                self.orgcache = Organization.select().where(Organization.id == self.organizationId).get()
+            return self.orgcache
 
     def getFood(self):
         ret = []

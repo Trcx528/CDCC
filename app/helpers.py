@@ -162,3 +162,9 @@ def format_time(value):
 
 def format_datetime(value):
     return value.strftime(datetimeFormat)
+
+def to_strings(ilist):
+    ret = []
+    for i in ilist:
+        ret.append(str(i))
+    return ret

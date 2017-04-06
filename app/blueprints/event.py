@@ -29,7 +29,7 @@ def selectRoom():
     openRooms = Room.openRooms(t.start, t.finish)
     rooms = RoomCombo.getCombos(openRooms, t.duration(), t.capacity)
     rooms.sort(key=RoomCombo.rateSort)
-    return render_template('event/room.html', rooms=rooms, start=t.start, finish=t.finish, capacity=t.capacity,
+    return render_template('event/room.html', rooms=rooms[:10], booking=t,
                            comboId=t.roomCombo().id if len(t.roomIds) > 0 else None)
 
 

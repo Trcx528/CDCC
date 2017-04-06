@@ -1,6 +1,7 @@
 import hashlib
 from app import db
 from peewee import CharField, DateTimeField, DecimalField, BooleanField, ForeignKeyField, IntegerField, JOIN
+import app.logic
 
 
 class User(db.Model):
@@ -151,6 +152,15 @@ class Booking(db.Model):
                 ret.append(br.room_id)
         return ret
 
+    @property
+    def duration(self):
+        return float((self.endTime - self.startTime).total_seconds()/60/60)
+
+    @property
+    def roomCombo(self):
+        if not hasattr(self, 'roomComboPre'):
+            self.roomComboPre = app.logic.RoomCombo(self.selectedRooms(), self.duration)
+        return self.roomComboPre
 
 class Attachment(db.Model):
     booking = ForeignKeyField(rel_model=Booking, to_field='id', related_name='attachments')

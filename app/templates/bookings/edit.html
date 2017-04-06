@@ -4,6 +4,8 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Editing Booking</h2>
+    <p>Created By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
+    <hr>
     <form class="form-horizontal" method="POST">
         {{ html.csrf_token()}}
         {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.eventName) }}
@@ -13,18 +15,7 @@
         {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount, min=0) }}
         {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"}), value=booking.contact.organization_id) }}
         {{ html.form_group("select", "Contact", options=html.to_keyval(contacts), value=booking.contact_id) }}
-        <div class="form-group{{ ' has-error' if g['hasErrors'] and "Rooms" in g.errors else ''}}">
-            <label class="col-sm-2 control-label" for="Rooms">Rooms</label>
-            <div class="col-sm-4">
-                <select class="form-control" name="Rooms" id="Rooms">
-                    {% for room in rooms %}
-                        <option value="{{room}}" {{' selected=""'|safe if room == selectedRoomId else ''}} data-rate="{{rooms[room]['rate']|round(2)}}" data-capacity="{{rooms[room]['capacity']}}">{{rooms[room]['name']}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <span class="col-sm-3" id="roomCapacity">Capacity: 0</span>
-            <span class="col-sm-3" id="roomRate">Rate: $0/hr</span>
-        </div>
+        {{ html.form_group("multiselect", "Rooms", options=html.to_keyval(rooms), value=html.to_strings(booking.selectedRoomIds()))}}
         <hr>
         <table class="table table-condensed table-hover table-responsive table-striped">
             <thead>
@@ -50,6 +41,30 @@
                     <td colspan="4">Caterering Total</td>
                     <td><span id="catereringTotal" class="pull-right">$0</span></td>
                 </tr>
+                {% for room in booking.selectedRooms() %}
+                    <tr id="room-row-{{room.id}}"} class='room-rows'>
+                        <td colspan="2">{{room.name}}</td>
+                        <td>{{booking.duration|round(2)}} hours</td>
+                        <td>{{room.price|currency}} /hour</td>
+                        <td><span class="pull-right">{{room.getTotal(booking.duration)|currency}}</span></td>
+                    </tr>
+                {% endfor %}
+                <tr class="active">
+                    <td colspan="4">Room Total</td>
+                    <td><span id="roomTotal" class="pull-right">{{booking.roomCombo.price|currency}}</span></td>
+                </tr>
+                <tr>
+                    <td colspan="4">Subtotal</td>
+                    <td><span id="subtotal" class="pull-right"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="4">Discount</td>
+                    <td><span id="discountTotal" class="pull-right"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="4">Total</td>
+                    <td> <span id="finalTotal" class="pull-right"></span></td>
+                </tr>
             </tbody>
         </table> 
     </form>
@@ -58,7 +73,10 @@
 {% endblock %}
 {% block script %}
 <script>
-    var orgData = {{ json|tojson }};
+    
+    $('#Rooms').multiselect();
+    var orgData = {{ contactjson|tojson }};
+    var roomData = {{ roomjson|tojson }};
     function updateCaterering() {
         var cTotal = 0;
         $('.dish-input').each(function(){
@@ -66,8 +84,33 @@
             cTotal += total;
             $('#' + this.name.replace('_dish', '') + '_total').html('$' + total.toFixed(2));
         });
-        $('#catereringTotal').html('$' + cTotal);
+        $('#catereringTotal').html('$' + cTotal.toFixed(2));
+        updateTotal();
     }
+
+    function updateTotal() {
+
+    }
+
+    function updateRooms() {
+        //room-row-room.id
+        var values = $('#Rooms').val();
+        for(var key in values) {
+            var val = values[key];
+            var row = $("#room-row-" + val);
+            if (row.length === 0){
+                console.log("adding row " + val);
+            }
+        }
+        $('.room-rows').each(function(){
+            if ($.inArray(String(this.id.replace('room-row-','')), values) == -1){
+                console.log('removing row ' + this.id);
+                $(this).remove();
+            }
+        });
+        updateTotal();
+    }
+
     function filterContacts() {
         var orgId = $("#Organization").val();
         var flag = false;
@@ -93,7 +136,12 @@
     filterContacts();
     updateCaterering();
 
+    //return ((self.subTotal() - self.discountAmount) * self.discountPercent/100) + self.discountAmount
 
+
+    //$('#Rooms .multiselect').addClass('btn-error');
+    //$('#Rooms').parent().parent().toggleClass('has-error')
+    $('#Rooms').on('change', updateRooms);
     $('.dish-input').on('change', updateCaterering);
     $('#Organization').on('change', filterContacts);
 </script>
