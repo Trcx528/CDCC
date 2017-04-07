@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, g, flash, redirect, url_for
+from flask import Blueprint, render_template, g, flash, redirect, url_for, request
 from app.validation import validate
 from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization
 from peewee import prefetch
@@ -28,13 +28,38 @@ def edit(id):
         contactjson[oid][c.id] = c.name
     roomjson = {}
     for room in rooms:
-        roomjson[room.id] = {'capacity': room.capacity, 'rate': float(room.price), 'adjacentRooms': room.adjacentRoomIds(), 'name': room.name}
+        roomjson[room.id] = {'capacity': room.capacity, 'rate': float(room.price),
+                             'adjacentRooms': room.adjacentRoomIds(), 'name': room.name, 'id': room.id}
     return render_template('bookings/edit.html', booking=booking, dishes=dishes, orgs=orgs, contacts=cons,
                            contactjson=contactjson, rooms=rooms, roomjson=roomjson)
 
 
 @blueprint.route('/bookings/<int:id>', methods=['POST'])
-def processEdit(id):
+@validate(EventName='str|required', DiscountPercent='percent|required|max=100|min=0', Rooms='multiselect',
+          DiscountAmount='currency|required|min=0', Contact='int|required')
+def processEdit(id, eventName, discountPercent, discountAmount, contact, rooms):
+    b = Booking.select().where(Booking.id == id).get()
+    food = {}
+    for field in request.form:
+        if field.startswith('dish_'):
+            food[int(field.replace('dish_', ''))] = int(request.form[field])
+    b.eventName = eventName
+    b.discountPercent = discountPercent
+    b.discountAmount = discountAmount
+    b.contact_id = contact
+    print(rooms)
+    rooms = Room.select().where(Room.id << rooms)
+    BookingRoom.delete().where(BookingRoom.booking == b).execute()
+    for room in rooms:
+        br = BookingRoom(booking=b, room=room)
+        br.save()
+    Order.delete().where(Order.booking == b).execute()
+    for f in food:
+        if food[f] > 0:
+            Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=food[f]).save()
+    b.calculateTotal()
+    b.save()
+    flash('Booking Updated', 'success')
     return redirect(url_for('bookings.index'))
 
 

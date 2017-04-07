@@ -1,7 +1,6 @@
 import hashlib
 from app import db
 from peewee import CharField, DateTimeField, DecimalField, BooleanField, ForeignKeyField, IntegerField, JOIN
-import app.logic
 
 
 class User(db.Model):
@@ -152,6 +151,19 @@ class Booking(db.Model):
                 ret.append(br.room_id)
         return ret
 
+    def calculateTotal(self):
+        orders = self.orders
+        if hasattr(self, 'orders_prefetch'):
+            orders = self.orders_prefetch
+        subtotal = 0
+        for order in orders:
+            subtotal += float(order.quantity) * float(order.dish.price)
+        for room in self.selectedRooms():
+            subtotal = float(room.price) * float(self.duration)
+        totalDiscount = ((subtotal - self.discountAmount) * self.discountPercent/100) + self.discountAmount
+        self.finalPrice = subtotal - totalDiscount
+        return self.finalPrice
+
     @property
     def duration(self):
         return float((self.endTime - self.startTime).total_seconds()/60/60)
@@ -159,6 +171,7 @@ class Booking(db.Model):
     @property
     def roomCombo(self):
         if not hasattr(self, 'roomComboPre'):
+            import app.logic
             self.roomComboPre = app.logic.RoomCombo(self.selectedRooms(), self.duration)
         return self.roomComboPre
 

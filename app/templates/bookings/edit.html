@@ -4,9 +4,9 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Editing Booking</h2>
-    <p>Created By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
+    <p>Booked By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
     <hr>
-    <form class="form-horizontal" method="POST">
+    <form class="form-horizontal" method="POST" id="editForm">
         {{ html.csrf_token()}}
         {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.eventName) }}
         {{ html.form_group('text', 'Start', value=booking.startTime|datetime, inputAttributes={'disabled': 'disabled'})}}
@@ -15,6 +15,12 @@
         {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount, min=0) }}
         {{ html.form_group("select", "Organization", options=html.to_keyval(orgs, base={0: "None"}), value=booking.contact.organization_id) }}
         {{ html.form_group("select", "Contact", options=html.to_keyval(contacts), value=booking.contact_id) }}
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="Capacity">Max Capacity</label>
+            <div class="col-sm-10">
+                <input class="form-control" name="Capacity" disabled="disabled" id="capacity" placeholder="{{booking.roomCombo.capacity}} People" type="text">
+            </div>
+        </div>
         {{ html.form_group("multiselect", "Rooms", options=html.to_keyval(rooms), value=html.to_strings(booking.selectedRoomIds()))}}
         <hr>
         <table class="table table-condensed table-hover table-responsive table-striped">
@@ -32,7 +38,7 @@
                 <tr>
                     <td>{{dish.name}}</td>
                     <td>{{dish.caterer.name}}</td>
-                    <td><input type="number" min="0" class="dish-input" name="{{dish.id}}_dish" value="{{ booking.foodList()[dish.id] if dish.id in booking.foodList() else 0  }}" data-price="{{dish.price|round(2)}}"></td>
+                    <td><input type="number" min="0" class="dish-input" name="dish_{{dish.id}}" value="{{ booking.foodList()[dish.id] if dish.id in booking.foodList() else 0  }}" data-price="{{dish.price|round(2)}}"></td>
                     <td>{{dish.price|currency}}</td>
                     <td><span id="{{dish.id}}_total" class="pull-right">$0</span></td>
                 </tr>
@@ -41,14 +47,6 @@
                     <td colspan="4">Caterering Total</td>
                     <td><span id="catereringTotal" class="pull-right">$0</span></td>
                 </tr>
-                {% for room in booking.selectedRooms() %}
-                    <tr id="room-row-{{room.id}}"} class='room-rows'>
-                        <td colspan="2">{{room.name}}</td>
-                        <td>{{booking.duration|round(2)}} hours</td>
-                        <td>{{room.price|currency}} /hour</td>
-                        <td><span class="pull-right">{{room.getTotal(booking.duration)|currency}}</span></td>
-                    </tr>
-                {% endfor %}
                 <tr class="active">
                     <td colspan="4">Room Total</td>
                     <td><span id="roomTotal" class="pull-right">{{booking.roomCombo.price|currency}}</span></td>
@@ -61,88 +59,120 @@
                     <td colspan="4">Discount</td>
                     <td><span id="discountTotal" class="pull-right"></span></td>
                 </tr>
-                <tr>
-                    <td colspan="4">Total</td>
+                <tr class="info">
+                    <td colspan="4">Grand Total</td>
                     <td> <span id="finalTotal" class="pull-right"></span></td>
                 </tr>
             </tbody>
-        </table> 
-    </form>
+        </table>
+    </form>        
+    <a href="{{url_for('bookings.edit', id=booking.id)}}" onclick="event.preventDefault();$('#editForm').submit()" class="btn btn-primary pull-right">Save Changes</a>
+    {{html.button("Cancel Event", "post", ["btn", "btn-danger"], url_for('bookings.delete', id=booking.id), 'delete%s' % booking.id )}}    
   </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-    
-    $('#Rooms').multiselect();
     var orgData = {{ contactjson|tojson }};
     var roomData = {{ roomjson|tojson }};
-    function updateCaterering() {
-        var cTotal = 0;
-        $('.dish-input').each(function(){
-            var total = (this.dataset.price * this.value);
-            cTotal += total;
-            $('#' + this.name.replace('_dish', '') + '_total').html('$' + total.toFixed(2));
-        });
-        $('#catereringTotal').html('$' + cTotal.toFixed(2));
-        updateTotal();
-    }
-
-    function updateTotal() {
-
-    }
+    var duration = {{booking.duration|round(2)}};
 
     function updateRooms() {
         //room-row-room.id
+        var roomTotal = 0;
         var values = $('#Rooms').val();
+        var capacity = 0;
         for(var key in values) {
             var val = values[key];
             var row = $("#room-row-" + val);
+            var rowData = roomData[val];
+            var price = rowData.rate * duration;
+            capacity += rowData.capacity;
+            roomTotal += price;
             if (row.length === 0){
-                console.log("adding row " + val);
+                row = '<tr id="room-row-' + rowData.id + '" class="room-rows" data-price="' + price +'"><td colspan="2">' + rowData.name + '</td><td>' + duration + ' hours</td><td>$' + currency(rowData.rate) + ' /hour</td><td><span class="pull-right">$' + currency(price) +'</span></td></tr>';
+                $('#roomTotal').parent().parent().before(row);
             }
         }
-        $('.room-rows').each(function(){
-            if ($.inArray(String(this.id.replace('room-row-','')), values) == -1){
-                console.log('removing row ' + this.id);
-                $(this).remove();
+        var rooms = document.getElementsByClassName('room-rows');
+        for (var i=0; i < rooms.length; i++) {
+            console.log(i);
+            room = rooms[i];
+            console.log(room);
+            if ($.inArray(String(room.id.replace('room-row-','')), values) == -1){
+                $(room).remove();
             }
-        });
+        }
+        $('#roomTotal').addClass('to-total');
+        $('#roomTotal').data('total', roomTotal);
+        $('#roomTotal').html('$' + currency(roomTotal));
+        $('#capacity').val(capacity + " People");
         updateTotal();
     }
 
-    function filterContacts() {
-        var orgId = $("#Organization").val();
-        var flag = false;
-        $('#Contact > option').each(function(){
-            var data = orgData[orgId];
-            if (this.value in data) {
-                $(this).show();
-                $(this).removeAttr('disabled');
-                $(this)
-                if (!flag){
-                    flag=true;
-                    if (!($('#Contact').val() in data)) {
-                        $('#Contact').val(this.value);
-                    }
+    function validateRooms(wasDelayed){
+        if (wasDelayed !== true){
+            setTimeout(function(){validateRooms(true);}, 50);
+            return;
+        }
+        var roomIds = $('#Rooms').val();
+        if (roomIds == null)
+            return;
+        var singleConnections = 0;
+        var zeroConnections = 0;
+        for (key in roomIds) {
+            var id = roomIds[key];
+            var room = roomData[id];
+            var connectedCount = 0;
+            for (key in roomIds) {
+                var sid = roomIds[key];
+                if ($.inArray(String(sid), room.adjacentRooms) !== -1) {
+                    connectedCount += 1;
+                    console.log(room.name + ' is connected to ' + roomData[sid].name);
                 }
-            } else {
-                $(this).hide();
-                //set the disabled attr as a fall back
-                $(this).attr('disabled','disabled');
             }
-        })
+            console.log(room.name + ' is connected to ' + connectedCount + ' rooms');
+            if (connectedCount < 2)
+                singleConnections += 1;
+            if (connectedCount < 1)
+                zeroConnections += 1;
+        }
+        var failed = false;
+        console.log(singleConnections);
+        if (roomIds.length === 2 && zeroConnections > 0) {
+            failed = true;
+        } else if (roomIds.length > 2 && singleConnections > 2) {
+            failed = true;
+        }
+
+        if (failed) {
+            $('#Rooms .multiselect').addClass('btn-warning');
+            $('#Rooms .multiselect').removeClass('btn-default');
+            $('#Rooms').parent().find('.multiselect').addClass('btn-warning');
+            $('#Rooms').parent().find('.multiselect').removeClass('btn-default');
+            $('#Rooms').parent().parent().addClass('has-warning');
+            $('#Rooms').parent().find('.multiselect > span').popover({'content': 'Rooms cannot be combined', 'trigger': 'manual'});
+            $('#Rooms').parent().find('.multiselect > span').popover('show');
+        } else {
+            $('#Rooms .multiselect').removeClass('btn-warning');
+            $('#Rooms .multiselect').addClass('btn-default');
+            $('#Rooms').parent().parent().removeClass('has-warning');
+            $('#Rooms').parent().find('.multiselect').removeClass('btn-warning');
+            $('#Rooms').parent().find('.multiselect').addClass('btn-default');
+            $('#Rooms').parent().find('.multiselect > span').popover('hide');
+        }
     }
+    
+    $('#Rooms').multiselect();    
     filterContacts();
     updateCaterering();
-
-    //return ((self.subTotal() - self.discountAmount) * self.discountPercent/100) + self.discountAmount
-
-
-    //$('#Rooms .multiselect').addClass('btn-error');
-    //$('#Rooms').parent().parent().toggleClass('has-error')
+    updateRooms();
+    validateRooms();
     $('#Rooms').on('change', updateRooms);
+    $('#Rooms').on('change', validateRooms);
     $('.dish-input').on('change', updateCaterering);
     $('#Organization').on('change', filterContacts);
+    $('#DiscountPercent').on('change', updateTotal);
+    $('#DiscountAmount').on('change', updateTotal);
 </script>
 {% endblock %}

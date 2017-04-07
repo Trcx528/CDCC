@@ -61,9 +61,6 @@
 {% endblock %}
 {% block script %}
 <script>
-  function currency(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
   var cateringTotal = 0;
   $('.update-trigger').on('input propertychange paste', function(e){
     updateTotals();
@@ -74,10 +71,10 @@
     $('.update-trigger').each(function(e){
       var total = this.dataset['price'] * this.value;
       cateringTotal += total;
-      $("#"+this.name+"Total").html("$" + currency(total.toFixed(2)));
+      $("#"+this.name+"Total").html("$" + currency(total));
     })
-    $("#catereringTotal").html("$" + cateringTotal.toFixed(2));
-    $("#finalTotal").html('$' + currency((cateringTotal + $('#roomTotal').data('total')).toFixed(2)));
+    $("#catereringTotal").html("$" + currency(cateringTotal));
+    $("#finalTotal").html('$' + currency((cateringTotal + $('#roomTotal').data('total'))));
   }
   updateTotals();
 </script>

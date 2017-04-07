@@ -47,12 +47,17 @@ class TenativeBooking():
         session.pop(prefix + "contactId")
         session.pop(prefix + "organizationId")
 
+    def roomCombo(self):
+        if not hasattr(self, 'roomComboPre'):
+            self.roomComboPre = RoomCombo(self.rooms(), self.duration())
+        return self.roomComboPre
 
     def duration(self):
         return float((self.finish - self.start).total_seconds()/60/60)
 
     def rooms(self):
         if not hasattr(self, 'roomsPrefetch'):
+            print(Room)
             self.roomsPrefetch = Room.select().where(Room.id << self.roomIds).execute()
         return self.roomsPrefetch
 
