@@ -1,21 +1,18 @@
+High Priority:
+* optomize caterering admin with prefetch (avoid N+1 queries)
+* additional fields: isDeleted (all tables), room.dimensions
+* validate haven't already been reserved when completeing booking 
+* reports
+* handle deletes gracefully
+
+
+* manage attachments
 * Ensure proper titles on all pages
 * Enforce specific code formating style
 * autofocus form fields
 * pagination/datatables
-* properly filter the rooms in  the booking process
-* javascript to populate contact based on organization on the finalize page
-* reports
 * recent & upcoming bookings overview
 * refractor tenativeBooking class to load and save in a sensible manner
 * add optional validator function to @validate() to allow custom complex valdiation
-* make attachments functional in finalize booking
-* bookings admin
 * standardize on h2 vs legend
 * method to customize validator errors per view
-* finalize booking page should maintain current tab after a validation error
-* progress bar through booking process
-* determine open hours and do not charge for hours when closed
-* format start and end times nicely when on same day
-* optomize caterering admin with prefetch (avoid N+1 queries)
-* additional fields: isDeleted (all tables), room.dimensions
-* validate haven't already been reserved when completeing booking 

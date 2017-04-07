@@ -24,7 +24,7 @@
                             <td>
                                 <span class="pull-right">
                                     {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('caterers.edit', id=caterer.id))}}
-                                    {% if caterer.dishes|count > 0 %}
+                                    {% if caterer.dishes_prefetch|count > 0 %}
                                         {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs", "disabled"], url_for('caterers.delete', id=caterer.id), 'deleteCaterer%s' % caterer.id ) }}
                                     {% else %}
                                         {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('caterers.delete', id=caterer.id), 'deleteCaterer%s' % caterer.id ) }}
@@ -32,7 +32,7 @@
                                 </span>
                             </td>
                         </tr>
-                        {% for dish in caterer.dishes %}
+                        {% for dish in caterer.dishes_prefetch %}
                             <tr>
                                 <td>{{ dish.name }}</td>
                                 <td>{{ dish.price|currency }}</td>
