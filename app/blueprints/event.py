@@ -137,15 +137,16 @@ def confirmBooking():
 
 @blueprint.route('/book/confirm', methods=['POST'])
 def processConfirmBooking():
-    try:
-        # TODO group inserts together and not individually
-        # http://docs.peewee-orm.com/en/latest/peewee/querying.html#bulk-inserts
-        t = TenativeBooking.loadFromSession()
-        b = Booking(contact=t.contact(), creator=g.User, discountAmount=t.discountAmount,
-                    discountPercent=t.discountPercent, startTime=t.start, endTime=t.finish,
-                    eventName=t.name, finalPrice=t.total(), isCanceled=False)
+    # TODO group inserts together and not individually
+    # http://docs.peewee-orm.com/en/latest/peewee/querying.html#bulk-inserts
+    t = TenativeBooking.loadFromSession()
+    b = Booking(contact=t.contact(), creator=g.User, discountAmount=t.discountAmount,
+                discountPercent=t.discountPercent, startTime=t.start, endTime=t.finish,
+                eventName=t.name, finalPrice=t.total(), isCanceled=False)
+    rooms = t.rooms()
+    if Room.areRoomsFree(rooms, t.start, t.finish):
         b.save()
-        rooms = t.rooms()
+
         for room in rooms:
             br = BookingRoom(booking=b, room=room)
             br.save()
@@ -154,7 +155,8 @@ def processConfirmBooking():
                 Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=t.food[f]).save()
         flash("Created event: '%s'" % t.name, 'success')
         t.cleanSession()
-    except:
-        flash("Error Creating Booking", "error")
+    else:
+        flash('The room you selected has been taken by another booking.  Please select a different room.', 'error')
+        return redirect(url_for('event.selectRoom'))
     return redirect(url_for('main.index'))
 

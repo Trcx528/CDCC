@@ -47,18 +47,21 @@ def processEdit(id, eventName, discountPercent, discountAmount, contact, rooms):
     b.discountPercent = discountPercent
     b.discountAmount = discountAmount
     b.contact_id = contact
-    print(rooms)
-    rooms = Room.select().where(Room.id << rooms)
-    BookingRoom.delete().where(BookingRoom.booking == b).execute()
-    for room in rooms:
-        br = BookingRoom(booking=b, room=room)
-        br.save()
-    Order.delete().where(Order.booking == b).execute()
-    for f in food:
-        if food[f] > 0:
-            Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=food[f]).save()
-    b.calculateTotal()
-    b.save()
+    rooms = Room.select().where(Room.id << rooms).execute()
+    if Room.areRoomsFree(rooms):
+        BookingRoom.delete().where(BookingRoom.booking == b).execute()
+        for room in rooms:
+            br = BookingRoom(booking=b, room=room)
+            br.save()
+        Order.delete().where(Order.booking == b).execute()
+        for f in food:
+            if food[f] > 0:
+                Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=food[f]).save()
+        b.calculateTotal()
+        b.save()
+    else:
+        flash('A room that you selected is no longer available.  Please select a new room.', 'error')
+        return redirect(request.referrer)
     flash('Booking Updated', 'success')
     return redirect(url_for('bookings.index'))
 
