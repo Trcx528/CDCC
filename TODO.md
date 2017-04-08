@@ -1,6 +1,4 @@
 ### High Priority:
-* additional fields: isDeleted (all tables), room.dimensions
-* validate haven't already been reserved when completeing booking 
 * reports
 * handle deletes gracefully
 * time range filter on booking list, order by earliest start date
@@ -13,7 +11,6 @@
 * pagination/datatables
 * recent & upcoming bookings overview
 * standardize on h2 vs legend
-* turn off mitary time
 * test nonadmin
 
 ### Low Priority:

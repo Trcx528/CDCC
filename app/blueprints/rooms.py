@@ -19,9 +19,9 @@ def create():
 
 @blueprint.route('/admin/rooms/create', methods=['POST'])
 @validate(Name="str|required", Capacity="int|required|min=1", Rate="currency|required|min=0",
-          AdjacentRooms="multiselect")
-def processCreate(name, capacity, rate, adjacentRooms):
-    newRoom = Room(name=name, capacity=capacity, price=rate)
+          AdjacentRooms="multiselect", Dimensions="dimensions|required")
+def processCreate(name, capacity, rate, adjacentRooms, dimensions):
+    newRoom = Room(name=name, capacity=capacity, price=rate, dimensions=dimensions)
     newRoom.save()
     for id in adjacentRooms:
         newRoom.addAdjacentRoom(id)
@@ -36,13 +36,15 @@ def edit(id):
 
 @blueprint.route('/admin/rooms/<int:id>', methods=['POST'])
 @validate(Name="str|required", Capacity="int|required|min=1", Rate="currency|required|min=0",
-          AdjacentRooms="multiselect")
-def processEdit(id, name, capacity, rate, adjacentRooms):
+          AdjacentRooms="multiselect", Dimensions="dimensions|required")
+def processEdit(id, name, capacity, rate, adjacentRooms, dimensions):
     room = Room.select().where(Room.id == id).get()
     room.name = name
     room.capacity = capacity
     room.price = rate
+    room.dimensions = dimensions
     room.setAdjacentRooms(adjacentRooms)
+    room.save()
     flash("Modified room %s" % name, "success")
     return redirect(url_for('rooms.index'))
 

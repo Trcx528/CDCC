@@ -9,6 +9,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Capacity</th>
+                        <th>Dimensions</th>
                         <th>Rate</th>
                         <th>Rate/Person</th>
                         <th class="pull-right">{{ html.button("Create Room", "link", ["btn", "btn-default", "btn-xs"], url_for('rooms.create')) }} </th>
@@ -19,6 +20,7 @@
                         <tr>
                             <td>{{room.name}}</td>
                             <td>{{room.capacity}}</td>
+                            <td>{{room.dimensions}}</td>
                             <td>{{room.price|currency}} /hour</td>
                             <td>{{room.perPersonRate()|currency}}</td>
                             <td class="pull-right">

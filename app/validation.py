@@ -257,6 +257,22 @@ def valList(value, fieldName=None, type=None, **commonArgs):
         raise ValueError('Type %s is not supported' % type)
     return value, errors
 
+def valDimensions(value, fieldName=None, **commonArgs):
+    errors = commonValidation(value, fieldName, **commonArgs)
+    dimensions = value.replace("'", '').split('x')
+    valid = True
+    tmp = []
+    if len(dimensions) == 3:
+        for dim in dimensions:
+            if dim.strip().isnumeric():
+                tmp.append(dim.strip() + "'")
+    else:
+        valid = False
+    if not valid:
+        errors.append("Invalid Format")
+    else:
+        value = ' x '.join(tmp)
+    return value, errors
 
 registerValidator("str", valString)
 registerValidator("string", valString)
@@ -273,3 +289,4 @@ registerValidator("userEmail", valUserEmail)
 registerValidator("date", valDate)
 registerValidator("datetime", valDateTime)
 registerValidator("list", valList)
+registerValidator('dimensions', valDimensions)

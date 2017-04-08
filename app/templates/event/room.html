@@ -18,6 +18,7 @@
         <tr>
           <th>Rooms</th>
           <th>Capacity</th>
+          <th>Dimensions</th>
           <th>Rate</th>
           <th>Per Person</th>
           <th>Price</th>
@@ -29,6 +30,7 @@
         <tr class="{{ 'info' if comboId == room.id else '' }}">
           <td>{{room.name}}</td>
           <td>{{room.capacity}}</td>
+          <td>{{room.dimensions}}</td>
           <td>{{room.rate|currency}} /hour</td>
           <td>{{(room.rate/room.capacity)|currency}}</td>
           <td>{{room.price|currency}}</td>

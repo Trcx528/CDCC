@@ -10,11 +10,14 @@ class User(db.Model):
     passwordHash = CharField()
     lastLogin = DateTimeField(null=True, default=None)
     isAdmin = BooleanField(default=False)
+    isDeleted = BooleanField(default=False)
 
     def setPassword(self, password):
         self.passwordHash = hashlib.sha512(password.encode()).hexdigest()
 
     def checkPassword(self, password):
+        if self.isDeleted:
+            return False
         return self.passwordHash == hashlib.sha512(password.encode()).hexdigest()
 
 
@@ -23,6 +26,8 @@ class Room(db.Model):
     name = CharField()
     price = DecimalField()
     comboRooms = CharField(default="")
+    dimensions = CharField(default='')
+    isDeleted = BooleanField(default=False)
 
     def adjacentRoomIds(self):
         ret = []
@@ -99,6 +104,7 @@ class Room(db.Model):
 class Organization(db.Model):
     address = CharField()
     name = CharField()
+    isDeleted = BooleanField(default=False)
 
 
 class Contact(db.Model):
@@ -107,6 +113,7 @@ class Contact(db.Model):
     name = CharField()
     organization = ForeignKeyField(null=True, rel_model=Organization, to_field='id', related_name='contacts')
     work_phone = CharField(null=True)
+    isDeleted = BooleanField(default=False)
 
 
 class Booking(db.Model):
@@ -120,6 +127,7 @@ class Booking(db.Model):
     finalPrice = DecimalField(null=True)
     isCanceled = BooleanField()
     startTime = DateTimeField()
+    cancelationReason = CharField(max_length=2048, default='')
 
     def foodList(self):
         ret = {}
@@ -188,12 +196,14 @@ class BookingRoom(db.Model):
 class Caterer(db.Model):
     name = CharField()
     phone = CharField()
+    isDeleted = BooleanField(default=False)
 
 
 class Dish(db.Model):
     caterer = ForeignKeyField(rel_model=Caterer, to_field='id', related_name='dishes')
     name = CharField()
     price = DecimalField()
+    isDeleted = BooleanField(default=False)
 
 
 class Order(db.Model):
