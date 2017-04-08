@@ -32,7 +32,7 @@ function updateCaterering() {
     for(var i=0; i<dInput.length; i++){
         var total = dInput[i].dataset.price * dInput[i].value;
         cTotal += total;
-        $('#' + dInput[i].name.replace('_dish', '') + '_total').html('$' + currency(total));
+        $('#' + dInput[i].name.replace('dish_', '') + '_total').html('$' + currency(total));
     }
     $('#catereringTotal').html('$' + cTotal.toFixed(2));
     $('#catereringTotal').addClass('to-total');
