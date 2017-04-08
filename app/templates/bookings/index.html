@@ -33,8 +33,8 @@
                     <td>{{booking.finalPrice|currency}}</td>
                     <td>
                         <span class="pull-right">
-                            {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('bookings.edit', id=booking.id))}}
-                            {{html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('bookings.delete', id=booking.id), 'delete%s' % booking.id )}}
+                            {{ html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('bookings.edit', id=booking.id)) }}
+                            {{ html.button("Cancel", "link", ["btn", "btn-danger", "btn-xs"], url_for('bookings.cancel', id=booking.id)) }}
                         </span>
                     </td>
                 </tr>

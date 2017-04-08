@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, g
 from app.validation import validate
 from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization, User
 from peewee import prefetch
@@ -17,8 +17,9 @@ def edit(id):
     b = Booking.select().where(Booking.id == id)
     booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room, User)[0]
     dishes = prefetch(Dish.select().where(Dish.isDeleted == False), Caterer.select().where(Caterer.isDeleted == False))
-    orgs = Organization.select().where(Organization.isDeleted == False)
-    cons = Contact.select().where(Contact.isDeleted == False)
+    orgs = Organization.select().where((Organization.isDeleted == False) |
+                                       (Organization.id == booking.contact.organization_id))
+    cons = Contact.select().where((Contact.isDeleted == False) | (Contact.id == booking.contact_id))
     rooms = Room.openRooms(booking.startTime, booking.endTime, booking.id).execute()
     contactjson = {}
     for c in cons:
@@ -65,7 +66,25 @@ def processEdit(id, eventName, discountPercent, discountAmount, contact, rooms):
     flash('Booking Updated', 'success')
     return redirect(url_for('bookings.index'))
 
+@blueprint.route('/bookings/<int:id>/cancel')
+def cancel(id):
+    booking = Booking.select().where(Booking.id == id).get()
+    return render_template('bookings/cancel.html', booking=booking)
 
-@blueprint.route('/bookings/<int:id>/delete', methods=['POST'])
-def delete(id):
+@blueprint.route('/bookings/<int:id>/cancel', methods=['POST'])
+@validate(Reason='str|required')
+def processCancel(id, reason):
+    Booking.update(isCanceled=True, canceler=g.User.id, cancelationReason=reason).where(Booking.id == id).execute()
+    booking = Booking.select().where(Booking.id == id).get()
+    BookingRoom.delete().where(BookingRoom.booking == booking).execute()
+    flash('Booking Canceled', 'success')
     return redirect(url_for('bookings.index'))
+
+
+@blueprint.route('/bookings/<int:id>/restore', methods=['POST'])
+def restore(id):
+    Booking.update(isCanceled=False).where(Booking.id == id).execute()
+    flash('Booking Restored, please select valid rooms for this event.', 'success')
+    return redirect(url_for('bookings.edit', id=id))
+
+

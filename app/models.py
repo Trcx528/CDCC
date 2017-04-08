@@ -129,6 +129,12 @@ class Booking(db.Model):
     startTime = DateTimeField()
     cancelationReason = CharField(max_length=2048, default='')
 
+    @property
+    def canceledBy(self):
+        if not hasattr(self, 'cancelerUserPre'):
+            self.cancelerUserPre = User.select().where(User.id == self.canceler).get()
+        return self.cancelerUserPre
+
     def foodList(self):
         ret = {}
         if hasattr(self, 'orders_prefetch'):

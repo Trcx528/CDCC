@@ -1,6 +1,5 @@
 ### High Priority:
 * reports
-* handle deletes gracefully
 * time range filter on booking list, order by earliest start date
 * automatic 10% discount for top 10 customers of previous month
 

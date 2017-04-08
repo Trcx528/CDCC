@@ -4,7 +4,11 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Editing Booking</h2>
-    <p>Booked By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
+    {% if booking.isCanceled %}
+        <p>Canceled By {{booking.canceledBy.firstName}} {{booking.canceledBy.lastName}}<br>Reason: {{booking.cancelationReason}}</p>
+    {% else %}
+        <p>Booked By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
+    {% endif %}
     <hr>
     <form class="form-horizontal" method="POST" id="editForm">
         {{ html.csrf_token()}}
@@ -67,7 +71,11 @@
         </table>
     </form>        
     <a href="{{url_for('bookings.edit', id=booking.id)}}" onclick="event.preventDefault();$('#editForm').submit()" class="btn btn-primary pull-right">Save Changes</a>
-    {{html.button("Cancel Event", "post", ["btn", "btn-danger"], url_for('bookings.delete', id=booking.id), 'delete%s' % booking.id )}}    
+    {% if booking.isCanceled %}
+        {{ html.button("Restore Event", "post", ["btn", "btn-success"], url_for('bookings.restore', id=booking.id)) }}    
+    {% else %}
+        {{ html.button("Cancel Event", "link", ["btn", "btn-danger"], url_for('bookings.cancel', id=booking.id)) }}        
+    {% endif %}
   </div>
 </div>
 {% endblock %}
