@@ -48,7 +48,7 @@ def processEdit(id, eventName, discountPercent, discountAmount, contact, rooms):
     b.discountAmount = discountAmount
     b.contact_id = contact
     rooms = Room.select().where(Room.id << rooms).execute()
-    if Room.areRoomsFree(rooms):
+    if Room.areRoomsFree(rooms, b.startTime, b.endTime):
         BookingRoom.delete().where(BookingRoom.booking == b).execute()
         for room in rooms:
             br = BookingRoom(booking=b, room=room)
