@@ -23,6 +23,9 @@
         </div>
       </fieldset>
     </form>
+    {% if user.isDeleted %}
+      {{ html.button('Restore user', 'post', ['btn', 'btn-success'], url_for('users.restore', id=user.id)) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}

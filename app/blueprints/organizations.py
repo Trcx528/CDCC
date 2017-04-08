@@ -33,8 +33,10 @@ def processCreate(name, address, contacts):
 def edit(id):
     org = Organization.select().where(Organization.id == id).get()
     return render_template('admin/organizations/edit.html', org=org,
-                           contacts=Contact.select().where((Contact.organization == None) |
-                                                           (Contact.organization == org), Contact.isDeleted == False))
+                           contacts=Contact.select().where(((Contact.organization == None) |
+                                                            (Contact.organization == org) &
+                                                            (Contact.isDeleted == False)) |
+                                                           (Contact.organization_id == id)))
 
 
 @blueprint.route('/admin/organizations/<int:id>', methods=['POST'])

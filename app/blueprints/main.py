@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, g, flash, redirect, url_for, session
 from app.validation import validate
 from app.models import *
+from app.logic import *
 
 
 blueprint = Blueprint('main', __name__)
@@ -55,3 +56,8 @@ def logout():
     session.pop("user", None)
     flash("Logged Out!", "success")
     return redirect(request.referrer)
+
+@blueprint.route('/admin/restore')
+def deletedItems():
+    items = DeletedItem.getAll()
+    return render_template('admin/restore.html', items=items)

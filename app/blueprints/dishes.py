@@ -14,7 +14,8 @@ def adminCheck():
 
 @blueprint.route('/admin/dishes/create')
 def create():
-    return render_template('admin/dishes/create.html', caterers=Caterer.select())
+    return render_template('admin/dishes/create.html',
+                           caterers=Caterer.select().where(Caterer.isDeleted == False))
 
 
 @blueprint.route('/admin/dishes/create', methods=['POST'])
@@ -27,8 +28,10 @@ def processCreate(name, price, caterer):
 
 @blueprint.route('/admin/dishes/<int:id>')
 def edit(id):
-    return render_template('admin/dishes/edit.html', dish=Dish.select().where(Dish.id == id).get(),
-                           caterers=Caterer.select())
+    dish = Dish.select().where(Dish.id == id).get()
+    return render_template('admin/dishes/edit.html', dish=dish,
+                           caterers=Caterer.select().where((Caterer.isDeleted == False) |
+                                                           (Caterer.id == dish.caterer_id)))
 
 
 @blueprint.route('/admin/dishes/<int:id>', methods=['POST'])
@@ -42,6 +45,13 @@ def processEdit(id, name, price, caterer):
 
 @blueprint.route('/admin/dishes/<int:id>/delete', methods=['POST'])
 def delete(id):
-    Dish.delete().where(Dish.id == id).execute()
+    Dish.update(isDeleted=True).where(Dish.id == id).execute()
     flash('Dish deleted', 'success')
     return redirect(url_for('caterers.index'))
+
+
+@blueprint.route('/admin/dishes/<int:id>/restore', methods=['POST'])
+def restore(id):
+    Dish.update(isDeleted=False).where(Dish.id == id).execute()
+    flash('Dish restored', 'success')
+    return redirect(url_for('dishes.edit', id=id))

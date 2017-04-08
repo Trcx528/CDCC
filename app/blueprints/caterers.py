@@ -15,10 +15,10 @@ def adminCheck():
 
 @blueprint.route('/admin/caterers')
 def index():
-    caterer = Caterer.select()
-    dishes = Dish.select()
-    caterer_dishes = prefetch(caterer, dishes)
-    return render_template('admin/caterers/index.html', caterers=caterer_dishes)
+    caterer = Caterer.select().where(Caterer.isDeleted == False)
+    dishes = Dish.select().where(Dish.isDeleted == False)
+    caterers = prefetch(caterer, dishes)
+    return render_template('admin/caterers/index.html', caterers=caterers)
 
 
 @blueprint.route('/admin/caterers/create')
@@ -50,6 +50,13 @@ def processEdit(id, name, phone):
 
 @blueprint.route('/admin/caterers/<int:id>/delete', methods=['POST'])
 def delete(id):
-    Caterer.delete().where(Caterer.id == id).execute()
-    flash('Caterer Deleted','success')
+    Caterer.update(isDeleted=True).where(Caterer.id == id).execute()
+    flash('Caterer Deleted', 'success')
     return redirect(url_for('caterers.index'))
+
+
+@blueprint.route('/admin/caterers/<int:id>/restore', methods=['POST'])
+def restore(id):
+    Caterer.update(isDeleted=False).where(Caterer.id == id).execute()
+    flash('Caterer Restored', 'success')
+    return redirect(url_for('caterers.edit', id=id))

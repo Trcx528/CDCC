@@ -63,6 +63,11 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
                 ret += ' ' + str(key) + '="' + str(inputAttributes[key]) + '"   '
         ret += '>'
     elif ftype == "select" or ftype == "multiselect":
+        if ftype == "multiselect":
+            newval = []
+            for val in value:
+                newval.append(str(val))
+            value = newval
         ret += '<select class="form-control" name="' + inputName + '" id="' + id + '"'
         if ftype == "multiselect":
             ret += ' multiple=""'

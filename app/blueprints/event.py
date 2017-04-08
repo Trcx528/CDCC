@@ -38,8 +38,8 @@ def processSelectRoom(roomIds):
 @blueprint.route('/book/caterers')
 def selectFood():
     t = TenativeBooking.loadFromSession()
-    d = Dish.select()
-    c = Caterer.select()
+    d = Dish.select().where(Dish.isDeleted == False)
+    c = Caterer.select().where(Caterer.isDeleted == False)
     dishes = prefetch(d, c)
     return render_template('event/caterer.html', dishes=dishes, booking=t)
 

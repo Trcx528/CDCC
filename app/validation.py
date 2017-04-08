@@ -160,7 +160,7 @@ def valBool(value, fieldName=None, **commonArgs):
 
 
 def valCurrency(value, **args):
-    value = value.replace("$", "")
+    value = value.replace("$", "").replace(',', '')
     return valFloat(value, **args)
 
 def valPercent(value, **args):

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, g, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request
 from app.validation import validate
 from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization, User
 from peewee import prefetch
@@ -16,9 +16,9 @@ def index():
 def edit(id):
     b = Booking.select().where(Booking.id == id)
     booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room, User)[0]
-    dishes = prefetch(Dish.select(), Caterer)
-    orgs = Organization.select()
-    cons = Contact.select()
+    dishes = prefetch(Dish.select().where(Dish.isDeleted == False), Caterer.select().where(Caterer.isDeleted == False))
+    orgs = Organization.select().where(Organization.isDeleted == False)
+    cons = Contact.select().where(Contact.isDeleted == False)
     rooms = Room.openRooms(booking.startTime, booking.endTime, booking.id).execute()
     contactjson = {}
     for c in cons:

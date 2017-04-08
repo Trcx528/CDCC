@@ -8,7 +8,7 @@ blueprint = Blueprint('users', __name__)
 @blueprint.route('/admin/users')
 def index():
     if g.User.isAdmin:
-        return render_template('admin/users/index.html', users=User.select())
+        return render_template('admin/users/index.html', users=User.select().where(User.isDeleted == False))
     else:
         flash("You don't have access to that", 'error')
         return redirect(request.referrer)
@@ -49,4 +49,15 @@ def delete(id):
     else:
         flash("You don't have access to that", 'error')
         return redirect(request.referrer)
-    
+
+
+@blueprint.route('/admin/users/<int:id>/restore', methods=['POST'])
+def restore(id):
+    if g.User.isAdmin:
+        User.update(isDeleted=False).where(User.id == id).execute()
+        flash("User restored", 'success')
+        return redirect(url_for('users.edit', id=id))
+    else:
+        flash("You don't have access to that", 'error')
+        return redirect(request.referrer)
+

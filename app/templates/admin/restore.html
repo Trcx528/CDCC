@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Restore Deleted Items{% endblock %}
+
+{% block content %}
+<h2>Deleted Items</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-condensed table-hover table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Kind</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{item.name}}</td>
+                            <td>{{item.kind}}</td>
+                            <td class="pull-right">
+                                {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], item.link) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

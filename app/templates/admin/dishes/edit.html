@@ -8,7 +8,7 @@
         <legend>Edit Dish</legend>
         {{ html.csrf_token() }}
         {{ html.form_group("text", "Name", placeholder="Name", value=dish.name) }}
-        {{ html.form_group("text", "Price", placeholder="$9.99", value=dish.price) }}
+        {{ html.form_group("text", "Price", placeholder="$9.99", value=dish.price|currency) }}
         {{ html.form_group("select", "Caterer", options=html.to_keyval(caterers), value=dish.caterer_id) }}
         <div class="form-group">
           <div class="col-lg-10 col-lg-offset-2">
@@ -17,6 +17,9 @@
         </div>
       </fieldset>
     </form>
+    {% if dish.isDeleted %}
+      {{ html.button('Restore Dish', 'post', ['btn', 'btn-success'], url_for('dishes.restore', id=dish.id)) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Create Organization{% endblock %}
+{% block title %}Edit Organization{% endblock %}
 {% block content %}
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
@@ -17,11 +17,14 @@
         </div>
       </fieldset>
     </form>
+    {% if org.isDeleted %}
+      {{ html.button('Restore Organization', 'post', ['btn', 'btn-success'], url_for('organizations.restore', id=org.id)) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-//$('#Contacts').multiselect();
+$('#Contacts').multiselect();
 </script>
 {% endblock %}

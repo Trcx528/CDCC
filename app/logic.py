@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from flask import session
+from flask import session, url_for
 from app.models import *
 
 class TenativeBooking():
@@ -173,3 +173,36 @@ class RoomCombo():
     def rateSort(cls, self):
         return self.rate
 
+
+class DeletedItem():
+    name = None
+    kind = None
+    link = None
+
+    def __init__(self, name, kind, link):
+        self.name = name
+        self.kind = kind
+        self.link = link
+
+    @classmethod
+    def sorter(cls, self):
+        return self.name
+
+    @classmethod
+    def getAll(cls):
+        ret = []
+        for room in Room.select().where(Room.isDeleted == True):
+            ret.append(cls(room.name, 'Room', url_for('rooms.edit', id=room.id)))
+        for dish in Dish.select().where(Dish.isDeleted == True):
+            ret.append(cls(dish.name, 'Dish', url_for('dishes.edit', id=dish.id)))
+        for caterer in Caterer.select().where(Caterer.isDeleted == True):
+            ret.append(cls(caterer.name, 'Caterer', url_for('caterers.edit', id=caterer.id)))
+        for contact in Contact.select().where(Contact.isDeleted == True):
+            ret.append(cls(contact.name, 'Contact', url_for('contacts.edit', id=contact.id)))
+        for org in Organization.select().where(Organization.isDeleted == True):
+            ret.append(cls(org.name, 'Organization', url_for('organizations.edit', id=org.id)))
+        for booking in Booking.select().where(Booking.isCanceled == True):
+            ret.append(cls(booking.eventName, 'Booking', url_for('bookings.edit', id=booking.id)))
+        for user in User.select().where(User.isDeleted == True):
+            ret.append(cls(user.firstName + ' ' + user.lastName, 'User', url_for('users.edit', id=user.id)))
+        return ret

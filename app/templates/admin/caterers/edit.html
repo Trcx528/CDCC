@@ -16,6 +16,9 @@
         </div>
       </fieldset>
     </form>
+    {% if caterer.isDeleted %}
+      {{ html.button('Restore Caterer', 'post', ['btn', 'btn-success'], url_for('caterers.restore', id=caterer.id)) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}
