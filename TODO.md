@@ -1,4 +1,4 @@
-High Priority:
+### High Priority:
 * additional fields: isDeleted (all tables), room.dimensions
 * validate haven't already been reserved when completeing booking 
 * reports
@@ -6,7 +6,7 @@ High Priority:
 * time range filter on booking list, order by earliest start date
 * automatic 10% discount for top 10 customers of previous month
 
-Mid Priority:
+### Mid Priority:
 * manage attachments
 * Ensure proper titles on all pages
 * autofocus form fields
@@ -14,8 +14,9 @@ Mid Priority:
 * recent & upcoming bookings overview
 * standardize on h2 vs legend
 * turn off mitary time
+* test nonadmin
 
-Low Priority:
+### Low Priority:
 * method to customize validator errors per view
 * add optional validator function to @validate() to allow custom complex valdiation
 * refractor tenativeBooking class to load and save in a sensible manner

@@ -21,11 +21,7 @@
     </div>
     <div>
         <span class="col-sm-2"><span class="pull-right">Rooms</span></span>
-        <span class="col-sm-10">
-            {% for r in booking.rooms() %}
-                {{r.name}}, {# TODO  fix trailing comma #} 
-            {% endfor %}
-        </span>
+        <span class="col-sm-10">{{booking.roomCombo.name}}</span>
     </div>
     <div>
         <span class="col-sm-2"><span class="pull-right">Contact</span></span>

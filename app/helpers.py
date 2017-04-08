@@ -2,9 +2,9 @@ import string
 import random
 from flask import Markup, g, session, request
 
-datetimeFormat = "%m/%d/%Y %H:%M %p"
+datetimeFormat = "%m/%d/%Y %I:%M %p"
 dateFormat = "%m/%d/%Y"
-timeFormat = "%H:%M %p"
+timeFormat = "%I:%M %p"
 
 def value_for(name):
     if hasattr(g, "data"):

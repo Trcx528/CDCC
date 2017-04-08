@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, g, flash, redirect, url_for, request
 from app.validation import validate
-from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization
+from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization, User
 from peewee import prefetch
 
 blueprint = Blueprint('bookings', __name__)
@@ -15,7 +15,7 @@ def index():
 @blueprint.route('/bookings/<int:id>')
 def edit(id):
     b = Booking.select().where(Booking.id == id)
-    booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room)[0]
+    booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room, User)[0]
     dishes = prefetch(Dish.select(), Caterer)
     orgs = Organization.select()
     cons = Contact.select()

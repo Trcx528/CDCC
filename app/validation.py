@@ -4,9 +4,9 @@ from functools import wraps
 from flask import request, g, redirect, session, abort
 from app.models import User
 
-datetimeFormat = "%m/%d/%Y %H:%M %p"
+datetimeFormat = "%m/%d/%Y %I:%M %p"
 dateFormat = "%m/%d/%Y"
-timeFormat = "%H:%M %p"
+timeFormat = "%I:%M %p"
 
 _validators = {}
 

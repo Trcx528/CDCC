@@ -7,7 +7,7 @@
     <div class="progress"><div class="progress-bar" style="width: 0%;"></div></div>
     <form class="form-horizontal" method="post">
         {{ html.csrf_token() }}
-        {{ html.form_group("text", "Capacity", placeholder="50", value=capacity) }}
+        {{ html.form_group("number", "Capacity", placeholder="50", value=capacity, min=1) }}
         {{ html.form_group("text", "Start", value=start)}}
         {{ html.form_group("text", "Finish", value=finish) }}
         <div class="form-group">
@@ -25,7 +25,7 @@
   var tomorrow = Date(new Date().getTime() + 24 * 60 * 60 * 1000)
   $("#Start, #Finish").datetimepicker({
     minDate: tomorrow, 
-    format: 'm/d/Y H:i a',
+    format: 'm/d/Y h:i a',
     allowTimes: [
       '8:00', '8:15', "8:30", "8:45",
       '9:00', '9:15', "9:30", "9:45",
