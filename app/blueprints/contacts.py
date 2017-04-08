@@ -15,17 +15,17 @@ def adminCheck():
 
 @blueprint.route('/admin/contacts')
 def index():
-    orgs = Organization.select()
-    contacts = Contact.select()
+    orgs = Organization.select().where(Organization.isDeleted == False)
+    contacts = Contact.select().where(Contact.isDeleted == False)
     org_contacts = prefetch(orgs, contacts)
-    contacts = Contact.select().where(Contact.organization == None)
+    contacts = Contact.select().where(Contact.organization == None, Contact.isDeleted == False)
     return render_template('admin/contacts/index.html', organizations=org_contacts, contacts=contacts)
 
 
 @blueprint.route('/admin/contacts/create')
 def create():
     orgs = {0: "None"}
-    for org in Organization.select():
+    for org in Organization.select().where(Organization.isDeleted == False):
         orgs[org.id] = org.name
     return render_template('admin/contacts/create.html', orgs=orgs)
 
@@ -45,7 +45,8 @@ def processCreate(name, email, cellPhone, workPhone, organization):
 def edit(id):
     contact = Contact.select().where(Contact.id == id).get()
     orgs = {0: "None"}
-    for org in Organization.select():
+    for org in Organization.select().where((Organization.isDeleted == False) |
+                                           (Organization.id == contact.organization_id)):
         orgs[org.id] = org.name
     return render_template('admin/contacts/edit.html', contact=contact, orgs=orgs)
 
@@ -68,6 +69,14 @@ def processEdit(id, name, email, cellPhone, workPhone, organization):
 @blueprint.route('/admin/contacts/<int:id>/delete', methods=['POST'])
 def delete(id):
     contact = Contact.select().where(Contact.id == id).get()
-    contact.delete_instance()
+    contact.isDeleted = True
+    contact.save()
     flash('Contact %s deleted' % contact.name, 'success')
     return redirect(url_for('contacts.index'))
+
+@blueprint.route('/admin/contacts/<int:id>/restore', methods=['POST'])
+def restore(id):
+    Contact.update(isDeleted=False).where(Contact.id == id).execute()
+    flash('Contact restored', 'success')
+    return redirect(url_for('contacts.edit', id=id))
+

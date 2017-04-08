@@ -19,6 +19,9 @@
         </div>
       </fieldset>
     </form>
+    {% if contact.isDeleted %}
+      {{ html.button('Restore Contact', 'post', ['btn', 'btn-success'], url_for('contacts.restore', id=contact.id)) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}

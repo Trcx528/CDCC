@@ -61,8 +61,7 @@ def delete(id):
     rooms = room.adjacentRooms()
     for r in rooms:
         r.removeAdjacentRoom(id)
-    room.isDeleted = True
-    room.save()
+    Room.update(isDeleted=True).where(Room.id == id).execute()
     flash("Room %s deleted" % room.name, "success")
     return redirect(url_for('rooms.index'))
 

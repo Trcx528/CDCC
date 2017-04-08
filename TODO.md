@@ -14,6 +14,8 @@
 * test nonadmin
 
 ### Low Priority:
+* switch unecessary saves() to update()
+* cleanup imports
 * method to customize validator errors per view
 * add optional validator function to @validate() to allow custom complex valdiation
 * refractor tenativeBooking class to load and save in a sensible manner

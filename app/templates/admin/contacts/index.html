@@ -26,7 +26,7 @@
                             <td>
                                 <span class="pull-right">
                                     {{html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('organizations.edit', id=org.id))}}
-                                    {% if org.contacts|count > 0 %}
+                                    {% if org.contacts_prefetch|count > 0 %}
                                         {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs", "disabled"], url_for('organizations.delete', id=org.id), 'deleteOrg%s' % org.id ) }}
                                     {% else %}
                                         {{ html.button("Delete", "post", ["btn", "btn-danger", "btn-xs"], url_for('organizations.delete', id=org.id), 'deleteOrg%s' % org.id ) }}
@@ -34,7 +34,7 @@
                                 </span>
                             </td>
                         </tr>
-                        {% for contact in org.contacts%}
+                        {% for contact in org.contacts_prefetch %}
                             <tr>
                                 <td>{{ contact.name }}</td>
                                 <td>{{ contact.cell_phone }}</td>

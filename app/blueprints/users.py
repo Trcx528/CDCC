@@ -43,7 +43,7 @@ def processEdit(id, firstname, lastname, emailAddress, newPassword, admin):
 @blueprint.route('/admin/users/<int:id>/delete', methods=['POST'])
 def delete(id):
     if g.User.isAdmin:
-        User.delete().where(User.id == id).execute()
+        User.update(isDeleted=True).where(User.id == id).execute()
         flash("User deleted", 'success')
         return redirect(url_for('users.index'))
     else:

@@ -42,6 +42,8 @@ def before_request():
     if "user" in session:
         try:
             g.User = models.User.select().where(models.User.id == session["user"]).get()
+            if g.User.isDeleted: # force a logout if the user's account has been deleted
+                session.pop("user", None)
             g.loggedIn = True
         except:
             session.pop('user')

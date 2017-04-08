@@ -1,8 +1,7 @@
-from datetime import datetime, date, timedelta
 from flask import Blueprint, render_template, redirect, url_for, session, request, g, flash
 from app.validation import validate, datetimeFormat
+from peewee import prefetch
 from app.models import *
-from peewee import JOIN, prefetch
 from app.logic import TenativeBooking, RoomCombo
 
 blueprint = Blueprint('event', __name__)
@@ -28,7 +27,6 @@ def selectRoom():
     rooms.sort(key=RoomCombo.rateSort)
     return render_template('event/room.html', rooms=rooms[:10], booking=t,
                            comboId=t.roomCombo().id if len(t.roomIds) > 0 else None)
-
 
 @blueprint.route('/book/room', methods=['POST'])
 @validate(roomIds='list|required|type=int')
@@ -59,8 +57,8 @@ def processFoodSelection():
 
 @blueprint.route('/book/finalize')
 def finalizeBooking():
-    orgs = Organization.select()
-    contacts = Contact.select()
+    orgs = Organization.select().where(Organization.isDeleted == False)
+    contacts = Contact.select().where(Contact.isDeleted == False)
     t = TenativeBooking.loadFromSession()
     json = {}
     for c in contacts:
