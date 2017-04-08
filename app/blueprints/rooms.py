@@ -14,7 +14,7 @@ def adminCheck():
 
 @blueprint.route('/admin/rooms/create')
 def create():
-    return render_template('admin/room/create.html', rooms=Room.select())
+    return render_template('admin/room/create.html', rooms=Room.select().where(Room.isDeleted == False).order_by(Room.name))
 
 
 @blueprint.route('/admin/rooms/create', methods=['POST'])
@@ -30,8 +30,8 @@ def processCreate(name, capacity, rate, adjacentRooms, dimensions):
 
 @blueprint.route('/admin/rooms/<int:id>')
 def edit(id):
-    return render_template('admin/room/edit.html', rooms=Room.select().where(Room.id != id),
-                           room=Room.select().where(Room.id == id).get())
+    return render_template('admin/room/edit.html', room=Room.select().where(Room.id == id).get(),
+                           rooms=Room.select().where(Room.id != id, Room.isDeleted == False).order_by(Room.name))
 
 
 @blueprint.route('/admin/rooms/<int:id>', methods=['POST'])
@@ -51,7 +51,8 @@ def processEdit(id, name, capacity, rate, adjacentRooms, dimensions):
 
 @blueprint.route('/admin/rooms')
 def index():
-    return render_template('admin/room/index.html', rooms=Room.select())
+    return render_template('admin/room/index.html',
+                           rooms=Room.select().where(Room.isDeleted == False).order_by(Room.name))
 
 
 @blueprint.route('/admin/rooms/<int:id>/delete', methods=['POST'])
@@ -60,7 +61,16 @@ def delete(id):
     rooms = room.adjacentRooms()
     for r in rooms:
         r.removeAdjacentRoom(id)
-    room.delete_instance()
+    room.isDeleted = True
+    room.save()
     flash("Room %s deleted" % room.name, "success")
     return redirect(url_for('rooms.index'))
 
+
+@blueprint.route('/admin/rooms/<int:id>/restore', methods=['POST'])
+def restore(id):
+    room = Room.select().where(Room.id == id).get()
+    room.isDeleted = False
+    room.save()
+    flash('Room %s restored' % room.name, "success")
+    return redirect(url_for('rooms.edit', id=id))

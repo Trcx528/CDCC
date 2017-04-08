@@ -57,7 +57,6 @@ class TenativeBooking():
 
     def rooms(self):
         if not hasattr(self, 'roomsPrefetch'):
-            print(Room)
             self.roomsPrefetch = Room.select().where(Room.id << self.roomIds).execute()
         return self.roomsPrefetch
 
@@ -112,12 +111,15 @@ class RoomCombo():
     id = ""
     price = ""
     roomIds = []
+    dimensions = None
 
     def __init__(self, rooms, duration):
         self.rooms = rooms
         name = []
         self.roomIds = []
         for room in rooms:
+            if len(rooms) == 1:
+                self.dimensions = room.dimensions
             self.roomIds.append(str(room.id))
             name.append(room.name)
             self.capacity += room.capacity
@@ -126,6 +128,8 @@ class RoomCombo():
         self.name = ", ".join(name)
         self.id = "_".join(self.roomIds)
         self.price = float(duration) * float(self.rate)
+        if self.dimensions is None:
+            self.dimensions = 'NA'
 
     def __repr__(self):
         return "<RoomCombo Name=%s Capacity=%s Rate=%s Price=%s>"  % (self.name, self.capacity, self.rate, self.price)

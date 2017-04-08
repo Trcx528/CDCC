@@ -19,6 +19,9 @@
         </div>
       </fieldset>
     </form>
+    {% if room.isDeleted %}
+      {{ html.button('Restore Room', 'post', ['btn', 'btn-success'], url_for('rooms.restore', id=room.id)) }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}

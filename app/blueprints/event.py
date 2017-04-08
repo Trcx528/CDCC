@@ -22,9 +22,6 @@ def processPlan(capacity, start, finish):
 
 @blueprint.route('/book/room')
 def selectRoom():
-    #busyRooms = Booking.select().where((Booking.startTime >= start) & (Booking.endTime <= finish)).alias('bk')
-    #rooms = Room.select().join(busyRooms, JOIN.LEFT_OUTER, on=(Room.id == ))
-    # TODO Make logic to not show already booked rooms
     t = TenativeBooking.loadFromSession()
     openRooms = Room.openRooms(t.start, t.finish)
     rooms = RoomCombo.getCombos(openRooms, t.duration(), t.capacity)
