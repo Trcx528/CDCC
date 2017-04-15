@@ -4,6 +4,7 @@
 * automatic 10% discount for top 10 customers of previous month
 
 ### Mid Priority:
+* confirm booking room missing
 * manage attachments
 * Ensure proper titles on all pages
 * autofocus form fields
