@@ -165,17 +165,28 @@ class Booking(db.Model):
                 ret.append(br.room_id)
         return ret
 
-    def calculateTotal(self):
+    def catereringTotal(self):
+        subtotal = 0
         orders = self.orders
         if hasattr(self, 'orders_prefetch'):
             orders = self.orders_prefetch
-        subtotal = 0
         for order in orders:
             subtotal += float(order.quantity) * float(order.dish.price)
-        for room in self.selectedRooms():
-            subtotal = float(room.price) * float(self.duration)
-        totalDiscount = ((subtotal - self.discountAmount) * self.discountPercent/100) + self.discountAmount
-        self.finalPrice = subtotal - totalDiscount
+        return float(subtotal)
+
+    def subtotal(self):
+        subtotal = self.catereringTotal()
+        subtotal += self.roomCombo.price
+        return float(subtotal)
+
+    def discount(self):
+        subtotal = self.subtotal()
+        totalDiscount = ((subtotal - float(self.discountAmount)) * float(self.discountPercent)/100)
+        totalDiscount += float(self.discountAmount)
+        return float(totalDiscount)
+
+    def calculateTotal(self):
+        self.finalPrice = self.subtotal() - self.discount()
         return self.finalPrice
 
     @property

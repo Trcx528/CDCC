@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block title %}Editing {{booking.eventName}}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>{{booking.eventName}}</h2>
+    {% if booking.isCanceled %}
+        <p>Canceled By {{booking.canceledBy.firstName}} {{booking.canceledBy.lastName}}<br>Reason: {{booking.cancelationReason}}</p>
+    {% else %}
+        <p>Booked By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
+    {% endif %}
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Scheduled</span></span>
+        <span class="col-sm-10">
+            {% if booking.startTime.date() == booking.endTime.date() %}
+                {{booking.startTime.date()|date}} {{booking.startTime.time()|time}} - {{booking.endTime.time()|time}}
+            {% else %}
+                {{booking.startTime|datetime}} - {{booking.endTime|datetime}}
+            {% endif %}
+        </span>
+    </div>
+
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Discount Percent</span></span>
+        <span class="col-sm-10">{{booking.discountPercent|round(0)}}%</span>
+    </div>
+       
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Discount Amount</span></span>
+        <span class="col-sm-10">{{booking.discountAmount|currency}}</span>
+    </div>
+    
+    <div>
+        <span class="col-sm-2"><span class="pull-right">Contact</span></span>
+        <span class="col-sm-10">{{booking.contact.name}} {% if booking.organization %}({{booking.organization.name}}){% endif %}</span>
+    </div>
+    <table class="table table-condensed table-hover table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Caterer</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in booking.orders_prefetch %}
+            <tr>
+                <td>{{order.dish.name}}</td>
+                <td>{{order.dish.caterer.name}}</td>
+                <td>{{order.quantity}}</td>
+                <td>{{order.dish.price|currency}}</td>
+                <td><span class="pull-right">{{(order.quantity * order.dish.price)|currency}}</span></td>
+            </tr>
+            {% endfor %}
+            <tr class="active">
+                <td colspan="4">Caterering Total</td>
+                <td><span id="catereringTotal" class="pull-right">{{booking.catereringTotal()|currency}}</span></td>
+            </tr>
+            {% for room in booking.selectedRooms() %}
+            <tr>
+                <td>{{room.name}}</td>
+                <td>Capacity: {{room.capacity}}</td>
+                <td>{{booking.duration}}</td>
+                <td>{{room.price}}</td>
+                <td>{{room.getTotal(booking.duration)|currency}}</td>
+            </tr>
+            {% endfor %}
+            <tr class="active">
+                <td colspan="4">Room Total</td>
+                <td><span id="roomTotal" class="pull-right">{{booking.roomCombo.price|currency}}</span></td>
+            </tr>
+            <tr>
+                <td colspan="4">Subtotal</td>
+                <td><span id="subtotal" class="pull-right">{{booking.subtotal()|currency}}</span></td>
+            </tr>
+            <tr>
+                <td colspan="4">Discount</td>
+                <td><span id="discountTotal" class="pull-right">{{booking.discount()|currency}}</span></td>
+            </tr>
+            <tr class="info">
+                <td colspan="4">Grand Total</td>
+                <td><span id="finalTotal" class="pull-right">{{booking.calculateTotal()|currency}}</span></td>
+            </tr>
+        </tbody>
+    </table>    
+  </div>
+</div>
+{% endblock %}

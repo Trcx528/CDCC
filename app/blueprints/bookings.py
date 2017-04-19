@@ -21,8 +21,9 @@ def index(start=None, end=None):
 
 @blueprint.route('/bookings/view/<int:id>')
 def view(id):
-    b = Booking.select().where(Booking.id == id).get()
-    return render_template('bookings/view.html', booking=b)
+    b = Booking.select().where(Booking.id == id)
+    booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room, User)[0]
+    return render_template('bookings/view.html', booking=booking)
 
 
 @blueprint.route('/bookings/<int:id>')
