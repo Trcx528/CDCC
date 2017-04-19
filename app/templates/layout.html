@@ -34,7 +34,9 @@
             <li class="dropdown">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">Reports <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li class="{{ html.active(url_for('reports.canceled')) }}"><a href="{{ url_for('reports.canceled') }}">Rooms</a></li>
+                <li class="{{ html.active(url_for('reports.canceled')) }}"><a href="{{ url_for('reports.canceled') }}">Canceled Events</a></li>
+                <li class="{{ html.active(url_for('reports.toporganizations')) }}"><a href="{{ url_for('reports.toporganizations') }}">Top Organizations</a></li>
+                <li class="{{ html.active(url_for('reports.topcontacts')) }}"><a href="{{ url_for('reports.topcontacts') }}">Top Contacts</a></li>
               </ul>
             </li>
           </ul>
