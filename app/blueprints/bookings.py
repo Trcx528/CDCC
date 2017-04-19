@@ -19,6 +19,11 @@ def index(start=None, end=None):
     bookings = prefetch(b, BookingRoom, Room)
     return render_template('bookings/index.html', bookings=bookings, start=start, end=end)
 
+@blueprint.route('/bookings/view/<int:id>')
+def view(id):
+    b = Booking.select().where(Booking.id == id).get()
+    return render_template('bookings/view.html', booking=b)
+
 
 @blueprint.route('/bookings/<int:id>')
 def edit(id):

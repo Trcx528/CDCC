@@ -10,12 +10,6 @@
         {{ html.form_group('text', 'Event Name', placeholder="Name", value=booking.name) }}
         {{ html.form_group("number", "Discount Percent", placeholder="10%", value=booking.discountPercent, min=0, max=100) }}
         {{ html.form_group("number", "Discount Amount", placeholder="$10", value=booking.discountAmount, min=0) }}
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="attachments">Attachments</label>
-            <div class="col-sm-10">
-                <input class="" name="attachments" id="attachments" type="file" multiple="multiple" style="margin-top: 10px" enctype="multipart/form-data">
-            </div>
-        </div>
         <div style="margin-top: 20px;"></div>
         <ul class="nav nav-tabs">
             <li class="{{ 'active' if existing else '' }}"><a href="#existing" data-toggle="tab" aria-expanded="{{ 'false' if existing else 'true' }}">Existing Customer</a></li>
