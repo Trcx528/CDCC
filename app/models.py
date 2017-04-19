@@ -92,7 +92,7 @@ class Room(db.Model):
              ((Booking.startTime > start) & (Booking.endTime > start) &
               (Booking.startTime > end) & (Booking.endTime > end))), Room.isDeleted == False).order_by(Room.name)
 
-    @classmethod
+    @classmethod 
     def areRoomsFree(cls, rooms, start, end, bookingIncludeId=0):
         flag = True
         openRooms = cls.openRooms(start, end, bookingIncludeId).execute()

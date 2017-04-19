@@ -18,7 +18,7 @@ def hidden(name, value):
     return Markup(ret)
 
 def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=None, options={}, errors=[],
-               innerDiv=["col-sm-10"], min=None, max=None, inputAttributes=None):
+               innerDiv=["col-sm-10"], min=None, max=None, inputAttributes=None, labelClasses=['col-sm-2, control-label']):
     """
     ftype: [text|password|select|multiselect|textarea|radio|number]
     label: visible name
@@ -44,7 +44,10 @@ def form_group(ftype, label, inputName=None, placeholder=None, id=None, value=No
         ret += ' has-error'
     ret += '">'
     if label is not None:
-        ret += '<label class="col-sm-2 control-label" for="' + inputName + '">' + label + '</label>'
+        ret += '<label'
+        if labelClasses is not None:
+            ret += ' class="' + ' '.join(labelClasses) + '"'
+        ret += ' for="' + inputName + '">' + label + '</label>'
     if innerDiv is not None:
         ret += '<div class="' + ' '.join(innerDiv) + '">'
 

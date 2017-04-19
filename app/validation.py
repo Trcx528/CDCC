@@ -39,13 +39,11 @@ def validate(csrf_protection=True, methods=['POST'], **params):
                                     rulevalue = kwargs[rulevalue.replace('<', '').replace('>', '')]
                         ruleparams[rulekey] = rulevalue
                 error = None
+                valContainer = request.args if request.method == "GET" else request.form
                 if valType == "multiselect":
-                    fieldVal = [] if field not in request.form else request.form.getlist(field)
+                    fieldVal = [] if field not in valContainer else valContainer.getlist(field)
                 else:
-                    fieldVal = "" if field not in request.form else request.form[field]
-                    # for key in request.form:
-                    #     if key.startswith(field):
-                    #         fieldVal = request.form[key]
+                    fieldVal = "" if field not in valContainer else valContainer[field]
                 if valType in _validators:
                     g.data[field], error = _validators[valType](fieldVal, **ruleparams)
                 if error is not None and (len(error) > 0):
@@ -207,10 +205,13 @@ def valUserPassword(value, fieldName=None, userid=None, admin=False, **commonArg
 
 def valDate(value, fieldName=None, before=None, **commonArgs):
     errors = commonValidation(value, fieldName, **commonArgs)
-    try:
-        value = datetime.strptime(value, dateFormat)
-    except ValueError:
-        errors.append("Invalid Format")
+    if value is not None and value is not "":
+        try:
+            value = datetime.strptime(value, dateFormat)
+        except ValueError:
+            errors.append("Invalid Format")
+    else:
+        return None, errors
     if before is not None:
         if before in request.form:
             try:

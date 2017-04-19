@@ -1,15 +1,23 @@
+from datetime import datetime, timedelta, date
 from flask import Blueprint, render_template, flash, redirect, url_for, request, g
 from app.validation import validate
 from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization, User
 from peewee import prefetch
 
 blueprint = Blueprint('bookings', __name__)
-# TODO add parameters to limit date/time range
+
+
 @blueprint.route('/bookings')
-def index():
-    b = Booking.select().where(Booking.isCanceled == False)
+@validate(Start='date', End='date', methods=['GET'], csrf_protection=False)
+def index(start=None, end=None):
+    if start is None:
+        start = date.today()
+    if end is None:
+        end = date.today() + timedelta(days=30)
+    print(start, end, type(end))
+    b = Booking.select().where((Booking.startTime > start) & (Booking.startTime < end) & (Booking.isCanceled == False))
     bookings = prefetch(b, BookingRoom, Room)
-    return render_template('bookings/index.html', bookings=bookings)
+    return render_template('bookings/index.html', bookings=bookings, start=start, end=end)
 
 
 @blueprint.route('/bookings/<int:id>')
@@ -20,6 +28,7 @@ def edit(id):
     orgs = Organization.select().where((Organization.isDeleted == False) |
                                        (Organization.id == booking.contact.organization_id))
     cons = Contact.select().where((Contact.isDeleted == False) | (Contact.id == booking.contact_id))
+    print(booking.startTime, booking.endTime, type(booking.endTime))
     rooms = Room.openRooms(booking.startTime, booking.endTime, booking.id).execute()
     contactjson = {}
     for c in cons:

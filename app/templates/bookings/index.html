@@ -4,6 +4,19 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>Upcoming Events</h2>
+    <p>Displaying that start between {{start|date}} and {{end|date}}.</p>
+    <form class="form-inline">
+        <div class="input-group">
+            <div class="input-group-addon">Start</div>
+            <input type="text" class="form-control" name="Start" id="Start" value="{{start|date}}">
+        </div>
+        <div class="input-group">
+            <div class="input-group-addon">End</div>
+            <input type="text" class="form-control" name="End" id="End" value="{{end|date}}">
+        </div>
+        <button type="submit" class="btn btn-primary pull-right">Filter Events</button>
+    </form>
+    <hr/>
     <table class="table table-condensed table-hover table-responsive table-striped">
         <thead>
             <tr>
@@ -46,5 +59,9 @@
 {% endblock %}
 {% block script %}
 <script>
+    $("#Start, #End").datetimepicker({
+        timepicker: false,
+        format: 'm/d/Y'
+    });
 </script>
 {% endblock %}
