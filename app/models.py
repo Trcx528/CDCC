@@ -198,6 +198,7 @@ class Booking(db.Model):
         if not hasattr(self, 'roomComboPre'):
             import app.logic
             self.roomComboPre = app.logic.RoomCombo(self.selectedRooms(), self.duration)
+        print(self.roomComboPre)
         return self.roomComboPre
 
 class Attachment(db.Model):

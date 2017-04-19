@@ -31,7 +31,12 @@
           <ul class="nav navbar-nav">
             <li class="{{ html.active(url_for('event.plan')) }}">{{ html.button("New Event", "link", [], url_for('event.plan')) }}</li>
             <li class="{{ html.active(url_for('bookings.index')) }}">{{ html.button("Event List", "link", [], url_for('bookings.index')) }}</li>
-            <li class="{{ html.active('#') }}">{{ html.button("Reports", "link", [], '#') }}</li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">Reports <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="{{ html.active(url_for('reports.canceled')) }}"><a href="{{ url_for('reports.canceled') }}">Rooms</a></li>
+              </ul>
+            </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if g.User.isAdmin %}

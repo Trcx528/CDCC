@@ -14,7 +14,6 @@ def index(start=None, end=None):
         start = date.today()
     if end is None:
         end = date.today() + timedelta(days=30)
-    print(start, end, type(end))
     b = Booking.select().where((Booking.startTime > start) & (Booking.startTime < end) & (Booking.isCanceled == False))
     bookings = prefetch(b, BookingRoom, Room)
     return render_template('bookings/index.html', bookings=bookings, start=start, end=end)

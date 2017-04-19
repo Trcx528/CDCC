@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}Canceled Events{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Canceled Events</h2>
+    <p>Displaying were scheduled to start between {{start|date}} and {{end|date}}.</p>
+    <form class="form-inline">
+        <div class="input-group">
+            <div class="input-group-addon">Start</div>
+            <input type="text" class="form-control" name="Start" id="Start" value="{{start|date}}">
+        </div>
+        <div class="input-group">
+            <div class="input-group-addon">End</div>
+            <input type="text" class="form-control" name="End" id="End" value="{{end|date}}">
+        </div>
+        <button type="submit" class="btn btn-primary pull-right">Find Events</button>
+    </form>
+    <hr/>
+    <table class="table table-condensed table-hover table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Time</th>
+                <th>Rooms</th>
+                <th>Total</th>
+                <th>Reason</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+                <tr>
+                    <td>{{booking.eventName}}</td>
+                    <td>
+                        {% if booking.startTime.date() == booking.endTime.date() %}
+                            {{booking.startTime.date()|date}} {{booking.startTime.time()|time}} - {{booking.endTime.time()|time}}
+                        {% else %}
+                            {{booking.startTime|datetime}} - {{booking.endTime|datetime}}
+                        {% endif %}
+                    </td>
+                    <td>{{booking.roomCombo.name}}</td>
+                    <td>{{booking.finalPrice|currency}}</td>
+                    <td>{{booking.cancelationReason}}</td>
+                    <td>
+                        <span class="pull-right">
+                            {{ html.button("View", "link", ["btn", "btn-primary", "btn-xs"], url_for('bookings.view', id=booking.id)) }}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    $("#Start, #End").datetimepicker({
+        timepicker: false,
+        format: 'm/d/Y'
+    });
+</script>
+{% endblock %}
