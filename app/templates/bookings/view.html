@@ -4,11 +4,11 @@
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
     <h2>{{booking.eventName}}</h2>
+    <p>Booked By: {{booking.creator.firstName}} {{booking.creator.lastName}}
     {% if booking.isCanceled %}
-        <p>Canceled By {{booking.canceledBy.firstName}} {{booking.canceledBy.lastName}}<br>Reason: {{booking.cancelationReason}}</p>
-    {% else %}
-        <p>Booked By {{booking.creator.firstName}} {{booking.creator.lastName}}</p>
+        <br>Canceled By: {{booking.canceledBy.firstName}} {{booking.canceledBy.lastName}}<br>Reason: {{booking.cancelationReason}}
     {% endif %}
+    </p>
     <div>
         <span class="col-sm-2"><span class="pull-right">Scheduled</span></span>
         <span class="col-sm-10">
@@ -41,7 +41,7 @@
                 <th>Caterer</th>
                 <th>Quantity</th>
                 <th>Price</th>
-                <th>Total</th>
+                <th><span class="pull-right">Total</span></th>
             </tr>
         </thead>
         <tbody>
@@ -56,15 +56,15 @@
             {% endfor %}
             <tr class="active">
                 <td colspan="4">Caterering Total</td>
-                <td><span id="catereringTotal" class="pull-right">{{booking.catereringTotal()|currency}}</span></td>
+                <td><span id="catereringTotal" class="pull-right">{{booking.catereringTotal|currency}}</span></td>
             </tr>
             {% for room in booking.selectedRooms() %}
             <tr>
                 <td>{{room.name}}</td>
                 <td>Capacity: {{room.capacity}}</td>
-                <td>{{booking.duration}}</td>
-                <td>{{room.price}}</td>
-                <td>{{room.getTotal(booking.duration)|currency}}</td>
+                <td>{{booking.duration}} Hours</td>
+                <td>{{room.price|currency}}/hour</td>
+                <td><span class="pull-right">{{room.getTotal(booking.duration)|currency}}</span></td>
             </tr>
             {% endfor %}
             <tr class="active">
@@ -73,11 +73,11 @@
             </tr>
             <tr>
                 <td colspan="4">Subtotal</td>
-                <td><span id="subtotal" class="pull-right">{{booking.subtotal()|currency}}</span></td>
+                <td><span id="subtotal" class="pull-right">{{booking.subtotal|currency}}</span></td>
             </tr>
             <tr>
                 <td colspan="4">Discount</td>
-                <td><span id="discountTotal" class="pull-right">{{booking.discount()|currency}}</span></td>
+                <td><span id="discountTotal" class="pull-right">{{booking.discountTotal|currency}}</span></td>
             </tr>
             <tr class="info">
                 <td colspan="4">Grand Total</td>

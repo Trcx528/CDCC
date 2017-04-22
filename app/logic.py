@@ -109,7 +109,7 @@ class RoomCombo():
     rate = 0
     name = ""
     id = ""
-    price = ""
+    price = 0
     roomIds = []
     dimensions = None
 
@@ -146,7 +146,6 @@ class RoomCombo():
             comboRooms[str(id)] = RoomCombo([room], duration)
             for aid in room.adjacentRoomIds():
                 if aid in rsById:
-                    print(rsById[aid])
                     strid = [str(id), str(aid)]
                     strid.sort()
                     if "_".join(strid) not in comboRooms:

@@ -88,9 +88,7 @@ def cancel(id):
 @blueprint.route('/bookings/<int:id>/cancel', methods=['POST'])
 @validate(Reason='str|required')
 def processCancel(id, reason):
-    Booking.update(isCanceled=True, canceler=g.User.id, cancelationReason=reason).where(Booking.id == id).execute()
-    booking = Booking.select().where(Booking.id == id).get()
-    BookingRoom.delete().where(BookingRoom.booking == booking).execute()
+    Booking.select().where(Booking.id == id).get().delete(g.User.id, reason).save()
     flash('Booking Canceled', 'success')
     return redirect(url_for('bookings.index'))
 
@@ -101,4 +99,42 @@ def restore(id):
     flash('Booking Restored, please select valid rooms for this event.', 'success')
     return redirect(url_for('bookings.edit', id=id))
 
+@blueprint.route('/bookings/byorg/<int:orgid>')
+@validate(Start='date', End='date', IncludeCanceled='bool', methods=['GET'], csrf_protection=False)
+def orgindex(orgid, includeCanceled=True, start=None, end=None):
+    if start is None:
+        start = date.today()
+    if end is None:
+        end = date.today() + timedelta(days=30)
+    b = (Booking
+         .select(Booking)
+         .join(Contact)
+         .where(Contact.organization_id == orgid)
+         .where((Booking.startTime > start) & (Booking.endTime < end)))
+    if not includeCanceled:
+        b = b.where(Booking.isCanceled == False)
+    if orgid != 0:
+        org = Organization.select().where(Organization.id == orgid).get()
+    else:
+        org = Organization(name="No Organization")
+    bookings = prefetch(b, BookingRoom, Room, Contact)
+    return render_template('bookings/orgIndex.html', bookings=bookings, start=start, end=end,
+                           includeCanceled=includeCanceled, org=org)
 
+@blueprint.route('/bookings/bycontact/<int:cid>')
+@validate(Start='date', End='date', IncludeCanceled='bool', methods=['GET'], csrf_protection=False)
+def contactindex(cid, includeCanceled=True, start=None, end=None):
+    contact = Contact.select().where(Contact.id == cid).get()
+    if start is None:
+        start = date.today()
+    if end is None:
+        end = date.today() + timedelta(days=30)
+    b = (Booking
+         .select(Booking)
+         .where(Booking.contact == contact)
+         .where((Booking.startTime > start) & (Booking.endTime < end)))
+    if not includeCanceled:
+        b = b.where(Booking.isCanceled == False)
+    bookings = prefetch(b, BookingRoom, Room, Contact)
+    return render_template('bookings/contactIndex.html', bookings=bookings, start=start, end=end,
+                           includeCanceled=includeCanceled, contact=contact)

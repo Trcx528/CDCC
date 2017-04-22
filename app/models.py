@@ -128,6 +128,22 @@ class Booking(db.Model):
     isCanceled = BooleanField()
     startTime = DateTimeField()
     cancelationReason = CharField(max_length=2048, default='')
+    catereringTotal = DecimalField(null=True)
+    roomTotal = DecimalField(null=True)
+    subtotal = DecimalField(null=True)
+    discountTotal = DecimalField(null=True)
+    canceledRooms = CharField(null=True)
+
+    def delete(self, canceler, reason):
+        self.calculateTotal()
+        self.cancelationReason = reason
+        self.canceler = canceler
+        tmpRooms = []
+        for rid in self.selectedRoomIds():
+            tmpRooms.append(str(rid))
+        self.canceledRooms = ','.join(tmpRooms)
+        self.isCanceled = True
+        return self
 
     @property
     def canceledBy(self):
@@ -147,6 +163,10 @@ class Booking(db.Model):
 
     def selectedRooms(self):
         ret = []
+        if self.isCanceled:
+            if not hasattr(self, 'cancledRoomsPrebuilt'):
+                self.cancledRoomsPrebuilt = Room.select().where(Room.id << self.selectedRoomIds()).execute()
+            return self.cancledRoomsPrebuilt
         if hasattr(self, 'bookingroom_set_prefetch'):
             for br in self.bookingroom_set_prefetch:
                 ret.append(br.room)
@@ -157,6 +177,10 @@ class Booking(db.Model):
 
     def selectedRoomIds(self):
         ret = []
+        if self.isCanceled:
+            if self.canceledRooms is None:
+                return []
+            return self.canceledRooms.split(',')
         if hasattr(self, 'bookingroom_set_prefetch'):
             for br in self.bookingroom_set_prefetch:
                 ret.append(br.room_id)
@@ -165,29 +189,30 @@ class Booking(db.Model):
                 ret.append(br.room_id)
         return ret
 
-    def catereringTotal(self):
-        subtotal = 0
+    def calculateRoomTotal(self):
+        self.roomTotal = self.roomCombo.price
+
+    def calculateCatereringTotal(self):
+        self.catereringTotal = 0
         orders = self.orders
         if hasattr(self, 'orders_prefetch'):
             orders = self.orders_prefetch
         for order in orders:
-            subtotal += float(order.quantity) * float(order.dish.price)
-        return float(subtotal)
+            self.catereringTotal += float(order.quantity) * float(order.dish.price)
 
-    def subtotal(self):
-        subtotal = self.catereringTotal()
-        subtotal += self.roomCombo.price
-        return float(subtotal)
+    def calculateSubtotal(self):
+        self.subtotal = self.catereringTotal + self.roomTotal
 
-    def discount(self):
-        subtotal = self.subtotal()
-        totalDiscount = ((subtotal - float(self.discountAmount)) * float(self.discountPercent)/100)
-        totalDiscount += float(self.discountAmount)
-        return float(totalDiscount)
+    def calculateDiscountTotal(self):
+        self.discountTotal = ((self.subtotal - float(self.discountAmount)) * float(self.discountPercent)/100)
+        self.discountTotal += float(self.discountAmount)
 
     def calculateTotal(self):
-        self.finalPrice = self.subtotal() - self.discount()
-        return self.finalPrice
+        self.calculateCatereringTotal()
+        self.calculateRoomTotal()
+        self.calculateSubtotal()
+        self.calculateDiscountTotal()
+        self.finalPrice = self.subtotal - self.discountTotal
 
     @property
     def duration(self):
@@ -198,7 +223,6 @@ class Booking(db.Model):
         if not hasattr(self, 'roomComboPre'):
             import app.logic
             self.roomComboPre = app.logic.RoomCombo(self.selectedRooms(), self.duration)
-        print(self.roomComboPre)
         return self.roomComboPre
 
 class Attachment(db.Model):

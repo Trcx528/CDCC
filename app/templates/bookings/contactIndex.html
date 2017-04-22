@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
-{% block title %}Upcoming Events{% endblock %}
+{% block title %}Bookings For {{contact.name}}{{' (' + contact.organization.name + ')' if contact.organization else ''}}{% endblock %}
 {% block content %}
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
-    <h2>Upcoming Events</h2>
-    <p>Displaying that start between {{start|date}} and {{end|date}}.</p>
+    <h2>Bookings for {{contact.name}}{{' (' + contact.organization.name + ')' if contact.organization else ''}}</h2>
+    <p>Displaying bookings that start between {{start|date}} and {{end|date}}.</p>
     <form class="form-inline">
         <div class="input-group">
             <div class="input-group-addon">Start</div>
@@ -14,6 +14,7 @@
             <div class="input-group-addon">End</div>
             <input type="text" class="form-control" name="End" id="End" value="{{end|date}}">
         </div>
+        <input type="hidden" name="IncludeCanceled" id="IncludeCanceled" value="{{includeCanceled}}">
         <button type="submit" class="btn btn-primary pull-right">Filter Events</button>
     </form>
     <hr/>
@@ -21,6 +22,7 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Contact</th>
                 <th>Time</th>
                 <th>Rooms</th>
                 <th>Total</th>
@@ -29,8 +31,9 @@
         </thead>
         <tbody>
             {% for booking in bookings %}
-                <tr>
+                <tr{{' class=warning' if booking.isCanceled else ''}}>
                     <td>{{booking.eventName}}</td>
+                    <td>{{booking.contact.name}}</td>
                     <td>
                         {% if booking.startTime.date() == booking.endTime.date() %}
                             {{booking.startTime.date()|date}} {{booking.startTime.time()|time}} - {{booking.endTime.time()|time}}
@@ -47,8 +50,6 @@
                     <td>
                         <span class="pull-right">
                             {{ html.button("View", "link", ["btn", "btn-default", "btn-xs"], url_for('bookings.view', id=booking.id))}}
-                            {{ html.button("Edit", "link", ["btn", "btn-primary", "btn-xs"], url_for('bookings.edit', id=booking.id)) }}
-                            {{ html.button("Cancel", "link", ["btn", "btn-danger", "btn-xs"], url_for('bookings.cancel', id=booking.id)) }}
                         </span>
                     </td>
                 </tr>

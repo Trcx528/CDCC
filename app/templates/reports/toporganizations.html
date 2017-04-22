@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
-{% block title %}Top Organizations{% endblock %}
+{% block title %}Top 10 Organizations By Spending{% endblock %}
 {% block content %}
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
-    <h2>Top Clients By Organization</h2>
+    <h2>Top 10 Organizations By Spending</h2>
     <p>Including events scheduled to start between {{start|date}} and {{end|date}}.</p>
     <form class="form-inline">
         <div class="input-group">
@@ -23,12 +23,22 @@
                 <th>Organization</th>
                 <th>Caterering Total</th>
                 <th>Room Total</th>
-                <th>Grand Total</th>
+                <th>Discounts</th>
+                <th><span class="pull-right">Grand Total</span></th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-
+            {% for org in orgs %}
+                <tr>
+                    <td>{{org.name}}</td>
+                    <td>{{org.TotalCaterering|currency}}</td>
+                    <td>{{org.TotalRooms|currency}}</td>
+                    <td>{{org.TotalDiscounts|currency}} ({{(org.TotalDiscounts*100/org.TotalSpend)|round(0)}}%)</td>
+                    <td><span class="pull-right">{{org.TotalSpend|currency}}</span></td>
+                    <td>{{ html.button("Details", "link", ["btn", "btn-default", "btn-xs"], url_for("bookings.orgindex", orgid=org.id, Start=start|date, End=end|date, IncludeCanceled=True)) }}
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
   </div>

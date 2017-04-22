@@ -137,7 +137,7 @@ def processConfirmBooking():
     t = TenativeBooking.loadFromSession()
     b = Booking(contact=t.contact(), creator=g.User, discountAmount=t.discountAmount,
                 discountPercent=t.discountPercent, startTime=t.start, endTime=t.finish,
-                eventName=t.name, finalPrice=t.total(), isCanceled=False)
+                eventName=t.name, isCanceled=False)
     rooms = t.rooms()
     if Room.areRoomsFree(rooms, t.start, t.finish):
         b.save()
@@ -148,6 +148,7 @@ def processConfirmBooking():
         for f in t.food:
             if t.food[f] > 0:
                 Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=t.food[f]).save()
+        b.calculateTotal()
         flash("Created event: '%s'" % t.name, 'success')
         t.cleanSession()
     else:
