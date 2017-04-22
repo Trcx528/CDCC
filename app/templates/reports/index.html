@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}Report List{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+    <h2>Report List</h2>
+    <p>Please Select the report you would like to view</p>
+    <ul>
+        <li>{{html.button('Canceled Events', 'link', [], url_for('reports.canceled'))}}</li>
+        <li>{{html.button('Top 10 Organizations By Spending', 'link', [], url_for('reports.toporganizations'))}}</li>
+        <li>{{html.button('Top 10 Contacts By Spending', 'link', [], url_for('reports.topcontacts'))}}</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

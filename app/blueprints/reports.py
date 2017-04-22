@@ -7,6 +7,10 @@ from peewee import prefetch, fn, JOIN
 blueprint = Blueprint('reports', __name__)
 
 
+@blueprint.route('/reports')
+def index():
+    return render_template('reports/index.html')
+
 @blueprint.route('/reports/canceledEvents')
 @validate(Start='date', End='date', methods=['GET'], csrf_protection=False)
 def canceled(start=None, end=None):
