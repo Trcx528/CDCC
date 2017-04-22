@@ -1,3 +1,5 @@
+""" This file contains logical entities that are not present in the database """
+
 from datetime import datetime, date, timedelta
 from flask import session, url_for
 from app.models import *

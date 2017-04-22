@@ -1,20 +1,15 @@
-from flask import Blueprint, render_template, g, flash, redirect, url_for
+""" This file contains the CRUD for contacts """
+
+from flask import Blueprint, render_template, flash, redirect, url_for
 from app.validation import validate
 from app.models import Organization, Contact
 from peewee import prefetch
 
 blueprint = Blueprint('contacts', __name__)
 
-@blueprint.before_request
-def adminCheck():
-    if not g.User.isAdmin:
-        flash("You are not allow to access that", "error")
-        return redirect(url_for('main.index'))
-
-
-
 @blueprint.route('/admin/contacts')
 def index():
+    """Lists all contacts"""
     orgs = Organization.select().where(Organization.isDeleted == False)
     contacts = Contact.select().where(Contact.isDeleted == False)
     org_contacts = prefetch(orgs, contacts)
@@ -24,6 +19,7 @@ def index():
 
 @blueprint.route('/admin/contacts/create')
 def create():
+    """View to gather information to create a new contact"""
     orgs = {0: "None"}
     for org in Organization.select().where(Organization.isDeleted == False):
         orgs[org.id] = org.name
@@ -33,6 +29,7 @@ def create():
 @blueprint.route('/admin/contacts/create', methods=['POST'])
 @validate(Name="str|required", CellPhone="phone", WorkPhone="phone", Email="email|required", Organization="int")
 def processCreate(name, email, cellPhone, workPhone, organization):
+    """Creates a new contact based on POST data"""
     organization = None if organization == 0 else organization
     newContact = Contact(name=name, email=email, work_phone=workPhone, cell_phone=cellPhone,
                          organization_id=organization)
@@ -43,6 +40,7 @@ def processCreate(name, email, cellPhone, workPhone, organization):
 
 @blueprint.route('/admin/contacts/<int:id>')
 def edit(id):
+    """View to display contact data"""
     contact = Contact.select().where(Contact.id == id).get()
     orgs = {0: "None"}
     for org in Organization.select().where((Organization.isDeleted == False) |
@@ -54,6 +52,7 @@ def edit(id):
 @blueprint.route('/admin/contacts/<int:id>', methods=['POST'])
 @validate(Name="str|required", CellPhone="phone", WorkPhone="phone", Email="email|required", Organization="int")
 def processEdit(id, name, email, cellPhone, workPhone, organization):
+    """Updates a contact based on POST data"""
     organization = None if organization is 0 else organization
     contact = Contact.select().where(Contact.id == id).get()
     contact.name = name
@@ -68,6 +67,7 @@ def processEdit(id, name, email, cellPhone, workPhone, organization):
 
 @blueprint.route('/admin/contacts/<int:id>/delete', methods=['POST'])
 def delete(id):
+    """Softdeletes a contact"""
     contact = Contact.select().where(Contact.id == id).get()
     contact.isDeleted = True
     contact.save()
@@ -76,6 +76,7 @@ def delete(id):
 
 @blueprint.route('/admin/contacts/<int:id>/restore', methods=['POST'])
 def restore(id):
+    """Restores a softdeleted contact"""
     Contact.update(isDeleted=False).where(Contact.id == id).execute()
     flash('Contact restored', 'success')
     return redirect(url_for('contacts.edit', id=id))

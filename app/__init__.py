@@ -1,3 +1,5 @@
+"""This file contains the app initialization logic"""
+
 import os
 from datetime import datetime
 from flask import Flask, send_from_directory, g, session, redirect, url_for, request
@@ -21,7 +23,7 @@ if prod['DEBUG'] is True or prod['DEBUG'] is None:
     app.config.update(dev)
     app.debug = True
 db = Peewee(app)
-toobar = DebugToolbarExtension(app)
+#toobar = DebugToolbarExtension(app)
 if db:
     import app.models as models
 app.cli.add_command(db.cli, 'db')

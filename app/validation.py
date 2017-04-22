@@ -1,3 +1,5 @@
+""" This file contains all the validation logic used throughout various blueprints """
+
 import re
 from datetime import datetime, date
 from functools import wraps
@@ -11,7 +13,7 @@ timeFormat = "%I:%M %p"
 _validators = {}
 
 
-def validate(csrf_protection=True, methods=['POST'], **params):
+def validate(csrf_protection=False, methods=['POST'], **params):
     def wrapper(func):
         @wraps(func)
         def decorator(*args, **kwargs):

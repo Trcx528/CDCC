@@ -1,3 +1,5 @@
+"""This file contains function to be used within HTML templates"""
+
 import string
 import random
 from flask import Markup, g, session, request

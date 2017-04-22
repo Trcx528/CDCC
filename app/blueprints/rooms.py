@@ -1,26 +1,24 @@
-from flask import Blueprint, render_template, g, flash, redirect, url_for
+""" This file contains the CRUD for Rooms """
+
+from flask import Blueprint, render_template, flash, redirect, url_for
 from app.validation import validate
 from app.models import Room
 
 blueprint = Blueprint('rooms', __name__)
 
-@blueprint.before_request
-def adminCheck():
-    if not g.User.isAdmin:
-        flash("You are not allow to access that", "error")
-        return redirect(url_for('main.index'))
-
-
 
 @blueprint.route('/admin/rooms/create')
 def create():
-    return render_template('admin/room/create.html', rooms=Room.select().where(Room.isDeleted == False).order_by(Room.name))
+    """Gather information for a new room"""
+    return render_template('admin/room/create.html',
+                           rooms=Room.select().where(Room.isDeleted == False).order_by(Room.name))
 
 
 @blueprint.route('/admin/rooms/create', methods=['POST'])
 @validate(Name="str|required", Capacity="int|required|min=1", Rate="currency|required|min=0",
           AdjacentRooms="multiselect", Dimensions="dimensions|required")
 def processCreate(name, capacity, rate, adjacentRooms, dimensions):
+    """Create a new room based on POST data"""
     newRoom = Room(name=name, capacity=capacity, price=rate, dimensions=dimensions)
     newRoom.save()
     for id in adjacentRooms:
@@ -30,6 +28,7 @@ def processCreate(name, capacity, rate, adjacentRooms, dimensions):
 
 @blueprint.route('/admin/rooms/<int:id>')
 def edit(id):
+    """Display a room details"""
     return render_template('admin/room/edit.html', room=Room.select().where(Room.id == id).get(),
                            rooms=Room.select().where(Room.id != id, Room.isDeleted == False).order_by(Room.name))
 
@@ -38,6 +37,7 @@ def edit(id):
 @validate(Name="str|required", Capacity="int|required|min=1", Rate="currency|required|min=0",
           AdjacentRooms="multiselect", Dimensions="dimensions|required")
 def processEdit(id, name, capacity, rate, adjacentRooms, dimensions):
+    """Updates a room details"""
     room = Room.select().where(Room.id == id).get()
     room.name = name
     room.capacity = capacity
@@ -51,12 +51,14 @@ def processEdit(id, name, capacity, rate, adjacentRooms, dimensions):
 
 @blueprint.route('/admin/rooms')
 def index():
+    """List all rooms"""
     return render_template('admin/room/index.html',
                            rooms=Room.select().where(Room.isDeleted == False).order_by(Room.name))
 
 
 @blueprint.route('/admin/rooms/<int:id>/delete', methods=['POST'])
 def delete(id):
+    """soft delete a room"""
     room = Room.select().where(Room.id == id).get()
     rooms = room.adjacentRooms()
     for r in rooms:
@@ -68,6 +70,7 @@ def delete(id):
 
 @blueprint.route('/admin/rooms/<int:id>/restore', methods=['POST'])
 def restore(id):
+    """Restore a soft deleted room"""
     room = Room.select().where(Room.id == id).get()
     room.isDeleted = False
     room.save()

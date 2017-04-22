@@ -1,3 +1,5 @@
+"""This file contains all the CRUD for interacting with bookings"""
+
 from datetime import timedelta, date
 from flask import Blueprint, render_template, flash, redirect, url_for, request, g
 from app.validation import validate
@@ -10,6 +12,7 @@ blueprint = Blueprint('bookings', __name__)
 @blueprint.route('/bookings')
 @validate(Start='date', End='date', methods=['GET'], csrf_protection=False)
 def index(start=None, end=None):
+    """Lists all bookings"""
     if start is None:
         start = date.today()
     if end is None:
@@ -20,6 +23,7 @@ def index(start=None, end=None):
 
 @blueprint.route('/bookings/view/<int:id>')
 def view(id):
+    """Display details of a single booking"""
     b = Booking.select().where(Booking.id == id)
     booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room, User)[0]
     return render_template('bookings/view.html', booking=booking)
@@ -27,6 +31,7 @@ def view(id):
 
 @blueprint.route('/bookings/<int:id>')
 def edit(id):
+    """Display a form to edit a booking"""
     b = Booking.select().where(Booking.id == id)
     booking = prefetch(b, Order, Dish, Caterer, Contact, Organization, BookingRoom, Room, User)[0]
     dishes = prefetch(Dish.select().where(Dish.isDeleted == False), Caterer.select().where(Caterer.isDeleted == False))
@@ -53,6 +58,7 @@ def edit(id):
 @validate(EventName='str|required', DiscountPercent='percent|required|max=100|min=0', Rooms='multiselect',
           DiscountAmount='currency|required|min=0', Contact='int|required')
 def processEdit(id, eventName, discountPercent, discountAmount, contact, rooms):
+    """Save the form data into a booking"""
     b = Booking.select().where(Booking.id == id).get()
     food = {}
     for field in request.form:
@@ -82,12 +88,14 @@ def processEdit(id, eventName, discountPercent, discountAmount, contact, rooms):
 
 @blueprint.route('/bookings/<int:id>/cancel')
 def cancel(id):
+    """Dispaly a form to cancel a booking"""
     booking = Booking.select().where(Booking.id == id).get()
     return render_template('bookings/cancel.html', booking=booking)
 
 @blueprint.route('/bookings/<int:id>/cancel', methods=['POST'])
 @validate(Reason='str|required')
 def processCancel(id, reason):
+    """Actually cancel (softDelete) a booking"""
     Booking.select().where(Booking.id == id).get().delete(g.User.id, reason).save()
     flash('Booking Canceled', 'success')
     return redirect(url_for('bookings.index'))
@@ -95,6 +103,7 @@ def processCancel(id, reason):
 
 @blueprint.route('/bookings/<int:id>/restore', methods=['POST'])
 def restore(id):
+    """Undo a booking cancelation (softDeletion)"""
     Booking.update(isCanceled=False).where(Booking.id == id).execute()
     flash('Booking Restored, please select valid rooms for this event.', 'success')
     return redirect(url_for('bookings.edit', id=id))
@@ -102,6 +111,7 @@ def restore(id):
 @blueprint.route('/bookings/byorg/<int:orgid>')
 @validate(Start='date', End='date', IncludeCanceled='bool', methods=['GET'], csrf_protection=False)
 def orgindex(orgid, includeCanceled=True, start=None, end=None):
+    """List all bookings for an organization"""
     if start is None:
         start = date.today()
     if end is None:
@@ -124,6 +134,7 @@ def orgindex(orgid, includeCanceled=True, start=None, end=None):
 @blueprint.route('/bookings/bycontact/<int:cid>')
 @validate(Start='date', End='date', IncludeCanceled='bool', methods=['GET'], csrf_protection=False)
 def contactindex(cid, includeCanceled=True, start=None, end=None):
+    """List all bookings for a contact"""
     contact = Contact.select().where(Contact.id == cid).get()
     if start is None:
         start = date.today()

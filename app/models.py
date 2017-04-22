@@ -1,3 +1,5 @@
+"""This file contains the entities present in the database"""
+
 import hashlib
 from app import db
 from peewee import CharField, DateTimeField, DecimalField, BooleanField, ForeignKeyField, IntegerField, JOIN

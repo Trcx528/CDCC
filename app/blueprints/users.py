@@ -1,3 +1,5 @@
+"""This file contains the CRUD for users"""
+
 from flask import Blueprint, render_template, g, flash, redirect, url_for, request
 from app.validation import validate
 from app.models import User
@@ -7,15 +9,12 @@ blueprint = Blueprint('users', __name__)
 
 @blueprint.route('/admin/users')
 def index():
-    if g.User.isAdmin:
-        return render_template('admin/users/index.html', users=User.select().where(User.isDeleted == False))
-    else:
-        flash("You don't have access to that", 'error')
-        return redirect(request.referrer)
-
+    """List all users"""
+    return render_template('admin/users/index.html', users=User.select().where(User.isDeleted == False))
 
 @blueprint.route('/user/<int:id>')
 def edit(id):
+    """Display a user's details"""
     user = User.select().where(User.id == id).get()
     return render_template('admin/users/edit.html', user=user)
 
@@ -25,6 +24,7 @@ def edit(id):
           ConfirmPassword="str|matches=NewPassword", EmailAddress="userEmail|required|userid=<id>",
           Password="userPassword|required|userid=<id>|admin", Admin="check")
 def processEdit(id, firstname, lastname, emailAddress, newPassword, admin):
+    """Update a user's details based on POST data"""
     user = User.select().where(User.id == id).get()
     if newPassword is not None and newPassword is not "":
         user.setPassword(newPassword)
@@ -42,6 +42,7 @@ def processEdit(id, firstname, lastname, emailAddress, newPassword, admin):
 
 @blueprint.route('/admin/users/<int:id>/delete', methods=['POST'])
 def delete(id):
+    """Soft delete a user"""
     if g.User.isAdmin:
         User.update(isDeleted=True).where(User.id == id).execute()
         flash("User deleted", 'success')
@@ -53,6 +54,7 @@ def delete(id):
 
 @blueprint.route('/admin/users/<int:id>/restore', methods=['POST'])
 def restore(id):
+    """Restores a soft deleted user"""
     if g.User.isAdmin:
         User.update(isDeleted=False).where(User.id == id).execute()
         flash("User restored", 'success')

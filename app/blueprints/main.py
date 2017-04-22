@@ -1,3 +1,5 @@
+""" This file contains all basic views and logic such as login/out and the homepage """
+
 from datetime import datetime
 from flask import Blueprint, render_template, request, g, flash, redirect, url_for, session
 from app.validation import validate
@@ -10,11 +12,13 @@ blueprint = Blueprint('main', __name__)
 
 @blueprint.route('/')
 def index():
+    """Displays the homepage"""
     return render_template('main/index.html')
 
 
 @blueprint.route('/register')
 def register():
+    """Gathers information for a new User"""
     return render_template('main/register.html')
 
 
@@ -22,6 +26,7 @@ def register():
 @validate(FirstName="str|required", LastName="str|required", EmailAddress="userEmail|required",
           Password="str|required|minlength=8", ConfirmPassword="str|required|matches=Password")
 def processRegister(firstName, lastName, emailAddress, password):
+    """Creates a new User based on POST data"""
     newUser = User(firstName=firstName, lastName=lastName, emailAddress=emailAddress)
     newUser.setPassword(password)
     # temporary until we're in prod
@@ -34,6 +39,7 @@ def processRegister(firstName, lastName, emailAddress, password):
 @blueprint.route('/login', methods=['POST', 'GET'])
 @validate(LoginEmail="str", LoginPassword="str")
 def login(loginEmail=None, loginPassword=None):
+    """Presents and process the login form"""
     if request.method == 'GET':
         return render_template('main/login.html')
     loginUser = User.select().where(User.emailAddress == loginEmail).count()
@@ -53,11 +59,13 @@ def login(loginEmail=None, loginPassword=None):
 
 @blueprint.route('/logout', methods=['POST'])
 def logout():
+    """Logs a user off"""
     session.pop("user", None)
     flash("Logged Out!", "success")
     return redirect(request.referrer)
 
 @blueprint.route('/admin/restore')
 def deletedItems():
+    """Displays the recyclbin of all deleted items"""
     items = DeletedItem.getAll()
     return render_template('admin/restore.html', items=items)

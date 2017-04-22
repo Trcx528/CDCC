@@ -1,3 +1,5 @@
+""" This file contains the logic used to generate each report """
+
 from datetime import date, timedelta
 from flask import Blueprint, render_template
 from peewee import prefetch, fn, JOIN
@@ -14,6 +16,7 @@ def index():
 @blueprint.route('/reports/canceledEvents')
 @validate(Start='date', End='date', methods=['GET'], csrf_protection=False)
 def canceled(start=None, end=None):
+    """Displays the canceled event report"""
     if start is None:
         start = date.today() - timedelta(days=30)
     if end is None:
@@ -26,6 +29,7 @@ def canceled(start=None, end=None):
 @blueprint.route('/reports/topOrganizations')
 @validate(Start='date', End='date', methods=['GET'], csrf_protection=False)
 def toporganizations(start=None, end=None):
+    """Displays the top organizations by spending report"""
     if start is None:
         start = date.today() - timedelta(days=30)
     if end is None:
@@ -48,6 +52,7 @@ def toporganizations(start=None, end=None):
 @blueprint.route('/reports/topContacts')
 @validate(Start='date', End='date', methods=['GET'], csrf_protection=False)
 def topcontacts(start=None, end=None):
+    """Displays the top contacts by spending report"""
     if start is None:
         start = date.today() - timedelta(days=30)
     if end is None:

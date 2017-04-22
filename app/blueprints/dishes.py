@@ -1,19 +1,17 @@
-from flask import Blueprint, render_template, g, flash, redirect, url_for
+""" This file contains all the CRUD for dishes """
+
+from flask import Blueprint, render_template, flash, redirect, url_for
 from app.validation import validate
 from app.models import Caterer, Dish
 
 blueprint = Blueprint('dishes', __name__)
 
-@blueprint.before_request
-def adminCheck():
-    if not g.User.isAdmin:
-        flash("You are not allow to access that", "error")
-        return redirect(url_for('main.index'))
 
-
+# There is no index/list function as caterers.index displays caterers and dishes
 
 @blueprint.route('/admin/dishes/create')
 def create():
+    """View to create a new dish"""
     return render_template('admin/dishes/create.html',
                            caterers=Caterer.select().where(Caterer.isDeleted == False))
 
@@ -21,6 +19,7 @@ def create():
 @blueprint.route('/admin/dishes/create', methods=['POST'])
 @validate(Name="str|required", Price="currency|required", Caterer="int|required")
 def processCreate(name, price, caterer):
+    """Create a new dish based on POST data"""
     Dish(name=name, price=price, caterer_id=caterer).save()
     flash("Created new dish %s" % name, 'success')
     return redirect(url_for('caterers.index'))
@@ -28,6 +27,7 @@ def processCreate(name, price, caterer):
 
 @blueprint.route('/admin/dishes/<int:id>')
 def edit(id):
+    """Display a dish edit form"""
     dish = Dish.select().where(Dish.id == id).get()
     return render_template('admin/dishes/edit.html', dish=dish,
                            caterers=Caterer.select().where((Caterer.isDeleted == False) |
@@ -37,6 +37,7 @@ def edit(id):
 @blueprint.route('/admin/dishes/<int:id>', methods=['POST'])
 @validate(Name="str|required", Price="currency|required", Caterer="int|required")
 def processEdit(id, name, price, caterer):
+    """Updates a dish based on POST data"""
     Dish.update(name=name, price=price,
                 caterer=Caterer.select().where(Caterer.id == caterer).get()).where(Dish.id == id).execute()
     flash("Dish updated", 'success')
@@ -45,6 +46,7 @@ def processEdit(id, name, price, caterer):
 
 @blueprint.route('/admin/dishes/<int:id>/delete', methods=['POST'])
 def delete(id):
+    """Softdeletes a dish"""
     Dish.update(isDeleted=True).where(Dish.id == id).execute()
     flash('Dish deleted', 'success')
     return redirect(url_for('caterers.index'))
@@ -52,6 +54,7 @@ def delete(id):
 
 @blueprint.route('/admin/dishes/<int:id>/restore', methods=['POST'])
 def restore(id):
+    """Restores a soft deleted dish"""
     Dish.update(isDeleted=False).where(Dish.id == id).execute()
     flash('Dish restored', 'success')
     return redirect(url_for('dishes.edit', id=id))

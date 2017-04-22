@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""This file is just for easy startup in a development enviroment"""
 import sys
 import re
 import os

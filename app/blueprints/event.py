@@ -1,3 +1,5 @@
+""" This file contains all the views and logic used by the full 'new booking' process """
+
 from flask import Blueprint, render_template, redirect, url_for, session, request, g, flash
 from peewee import prefetch
 from app.validation import validate, datetimeFormat
@@ -8,6 +10,7 @@ blueprint = Blueprint('event', __name__)
 
 @blueprint.route('/book/search')
 def plan():
+    """Display a form to gather time and capacity requirements"""
     t = TenativeBooking.loadFromSession()
     return render_template('event/search.html', capacity=t.capacity, start=t.start.strftime(datetimeFormat),
                            finish=t.finish.strftime(datetimeFormat))
@@ -15,12 +18,14 @@ def plan():
 @blueprint.route('/book/search', methods=['POST'])
 @validate(Capacity="int|required", Start="datetime|required|before=Finish", Finish="datetime|required")
 def processPlan(capacity, start, finish):
+    """Save time and capacity requirements"""
     TenativeBooking.saveToSession(capacity=capacity, start=start, finish=finish)
     return redirect(url_for('event.selectRoom'))
 
 
 @blueprint.route('/book/room')
 def selectRoom():
+    """Display a list of potential room/roomcombos that mean the time and capacity requirements"""
     t = TenativeBooking.loadFromSession()
     openRooms = Room.openRooms(t.start, t.finish)
     rooms = RoomCombo.getCombos(openRooms, t.duration(), t.capacity)
@@ -31,12 +36,14 @@ def selectRoom():
 @blueprint.route('/book/room', methods=['POST'])
 @validate(roomIds='list|required|type=int')
 def processSelectRoom(roomIds):
+    """Save room selection"""
     TenativeBooking.saveToSession(roomIds=roomIds)
     return redirect(url_for('event.selectFood'))
 
 
 @blueprint.route('/book/caterers')
 def selectFood():
+    """Display caterering options"""
     t = TenativeBooking.loadFromSession()
     d = Dish.select().where(Dish.isDeleted == False)
     c = Caterer.select().where(Caterer.isDeleted == False)
@@ -47,6 +54,7 @@ def selectFood():
 @blueprint.route('/book/caterers', methods=['POST'])
 @validate() # check the csrf token
 def processFoodSelection():
+    """Save food selection"""
     food = {}
     for field in request.form:
         if field.startswith('dish_'):
@@ -57,6 +65,7 @@ def processFoodSelection():
 
 @blueprint.route('/book/finalize')
 def finalizeBooking():
+    """Gather final booking details like name and contact/organization"""
     orgs = Organization.select().where(Organization.isDeleted == False)
     contacts = Contact.select().where(Contact.isDeleted == False)
     t = TenativeBooking.loadFromSession()
@@ -82,6 +91,7 @@ def finalizeBooking():
           WorkPhone="phone", OrganizationName="str", OrganizationAddress="str")
 def processFinalizeBooking(eventName, discountPercent, discountAmount, organization, contact, contactName, email,
                            cellPhone, workPhone, organizationName, organizationAddress, existing, newContact, newOrg):
+    """Saves the final booking details"""
     TenativeBooking.saveToSession(name=eventName, discountPercent=discountPercent, discountAmount=discountAmount)
     errors = {}
     if existing != "":
@@ -126,12 +136,14 @@ def processFinalizeBooking(eventName, discountPercent, discountAmount, organizat
 
 @blueprint.route('/book/confirm')
 def confirmBooking():
+    """Displays all the booking data gathered and ask for confirmations"""
     t = TenativeBooking.loadFromSession()
     return render_template('event/confirm.html', booking=t)
 
 
 @blueprint.route('/book/confirm', methods=['POST'])
 def processConfirmBooking():
+    """Converts all the data gathered into a booking"""
     # TODO group inserts together and not individually
     # http://docs.peewee-orm.com/en/latest/peewee/querying.html#bulk-inserts
     t = TenativeBooking.loadFromSession()
