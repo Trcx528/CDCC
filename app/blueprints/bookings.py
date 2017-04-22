@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import timedelta, date
 from flask import Blueprint, render_template, flash, redirect, url_for, request, g
 from app.validation import validate
 from app.models import Booking, BookingRoom, Room, Order, Dish, Caterer, Contact, Organization, User

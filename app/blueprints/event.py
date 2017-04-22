@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, session, request, g, flash
-from app.validation import validate, datetimeFormat
 from peewee import prefetch
+from app.validation import validate, datetimeFormat
 from app.models import *
 from app.logic import TenativeBooking, RoomCombo
 
