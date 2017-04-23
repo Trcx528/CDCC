@@ -160,9 +160,10 @@ def processConfirmBooking():
         for f in t.food:
             if t.food[f] > 0:
                 Order(dish=Dish.get(Dish.id == int(f)), booking=b, quantity=t.food[f]).save()
-        b.calculateTotal()
         flash("Created event: '%s'" % t.name, 'success')
         t.cleanSession()
+        b.calculateTotal()
+        b.save()
     else:
         flash('The room you selected has been taken by another booking.  Please select a different room.', 'error')
         return redirect(url_for('event.selectRoom'))
