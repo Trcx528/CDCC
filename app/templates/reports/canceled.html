@@ -14,7 +14,10 @@
             <div class="input-group-addon">End</div>
             <input type="text" class="form-control" name="End" id="End" value="{{end|date}}">
         </div>
-        <button type="submit" class="btn btn-primary pull-right">Find Events</button>
+        <span class="pull-right">
+            <button type="submit" class="btn btn-primary">Find Events</button>
+            {{ html.button("Download", "link", ['btn', 'btn-default'], url_for('reports.canceledCsv', Start=start|date, End=end|date)) }}
+        </span>
     </form>
     <hr/>
     <table class="table table-condensed table-hover table-responsive table-striped">
