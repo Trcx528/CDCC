@@ -6,6 +6,12 @@ from app.models import User
 
 blueprint = Blueprint('users', __name__)
 
+@blueprint.before_request
+def adminCheck():
+    if not g.User.isAdmin:
+        flash("You are not allow to access that", "error")
+        return redirect(url_for('main.index'))
+
 
 @blueprint.route('/admin/users')
 def index():

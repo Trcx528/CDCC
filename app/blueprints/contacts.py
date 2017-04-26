@@ -1,11 +1,17 @@
 """ This file contains the CRUD for contacts """
 
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for, g
 from app.validation import validate
 from app.models import Organization, Contact
 from peewee import prefetch
 
 blueprint = Blueprint('contacts', __name__)
+
+@blueprint.before_request
+def adminCheck():
+    if not g.User.isAdmin:
+        flash("You are not allow to access that", "error")
+        return redirect(url_for('main.index'))
 
 @blueprint.route('/admin/contacts')
 def index():

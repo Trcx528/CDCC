@@ -67,5 +67,8 @@ def logout():
 @blueprint.route('/admin/restore')
 def deletedItems():
     """Displays the recyclbin of all deleted items"""
+    if not g.User.isAdmin:
+        flash("You are not allow to access that", "error")
+        return redirect(url_for('main.index'))
     items = DeletedItem.getAll()
     return render_template('admin/restore.html', items=items)

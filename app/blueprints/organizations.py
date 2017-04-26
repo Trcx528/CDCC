@@ -7,6 +7,11 @@ from app.models import Organization, Contact
 
 blueprint = Blueprint('organizations', __name__)
 
+@blueprint.before_request
+def adminCheck():
+    if not g.User.isAdmin:
+        flash("You are not allow to access that", "error")
+        return redirect(url_for('main.index'))
 
 @blueprint.route('/admin/organizations/create')
 def create():
