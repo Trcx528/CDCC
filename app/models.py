@@ -2,7 +2,7 @@
 
 import hashlib
 from app import db
-from peewee import CharField, DateTimeField, DecimalField, BooleanField, ForeignKeyField, IntegerField, JOIN
+from peewee import CharField, DateTimeField, DecimalField, BooleanField, ForeignKeyField, IntegerField, JOIN, fn
 
 
 class User(db.Model):
@@ -87,14 +87,18 @@ class Room(db.Model):
     @classmethod
     def openRooms(cls, start, end, bookingIncludeId=0):
         """Returns rooms that are open during a specific time period"""
-        return Room.select().join(BookingRoom, JOIN.LEFT_OUTER).join(Booking, JOIN.LEFT_OUTER).where(
-            (Booking.startTime >> None) | (Booking.id == bookingIncludeId) |
-            (((Booking.startTime < start) & (Booking.endTime < end) &
-              (Booking.startTime < end) & (Booking.endTime < end)) |
-             ((Booking.startTime > start) & (Booking.endTime > start) &
-              (Booking.startTime > end) & (Booking.endTime > end))), Room.isDeleted == False).order_by(Room.name)
+        print(start, end, bookingIncludeId)
+        # get a list of rooms that are unavalible for a given time
+        taken_rooms = Room.select(Room.id).join(BookingRoom, JOIN.LEFT_OUTER).join(Booking, JOIN.LEFT_OUTER).where(
+            (((start <= Booking.endTime) & (end >= Booking.endTime)) | # Booking.endTime is in the middle of new booking
+             ((end >= Booking.endTime) & (start <= Booking.startTime)) | # Booking is inside of new booking
+             ((start <= Booking.startTime) & (end >= Booking.startTime))) & # Booking.startTime is in new booking
+            (Booking.isCanceled == False) & # exclude cancled bookings
+            (Booking.id != bookingIncludeId) # exclude the currrent booking (so the room will be avalible)
+        ).group_by(Room.id)
+        return Room.select().where(Room.id.not_in(taken_rooms) & (Room.isDeleted == False))
 
-    @classmethod 
+    @classmethod
     def areRoomsFree(cls, rooms, start, end, bookingIncludeId=0):
         flag = True
         openRooms = cls.openRooms(start, end, bookingIncludeId).execute()
